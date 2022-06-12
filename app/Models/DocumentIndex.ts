@@ -1,0 +1,41 @@
+import { DateTime } from 'luxon'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import DirectoryIndex from './DirectoryIndex'
+
+export default class DocumentIndex extends BaseModel {
+
+  public static table = 'document_indexes'
+
+  @column({ isPrimary: true })
+  public id: number
+
+  @column()
+  public documentId: string
+
+  @column()
+  public indexId: number
+
+  @belongsTo(() => DirectoryIndex, {foreignKey: 'indexId'})
+  public index: BelongsTo<typeof DirectoryIndex>
+
+  @column()
+  public number: number
+
+  @column()
+  public string: string
+
+  @column()
+  public boolean: boolean
+  
+  @column()
+  public list: number
+
+  @column()
+  public datetime: DateTime
+
+  @column.dateTime({ autoCreate: true })
+  public createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  public updatedAt: DateTime
+}
