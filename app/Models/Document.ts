@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import DocumentIndex from './DocumentIndex'
-import Storage from './Storage'
 
 export default class Document extends BaseModel {
   @column({ isPrimary: true })
-  public id: string
+  public id: number
+
+  @column()
+  public documentId: string
 
   @hasMany(() => DocumentIndex)
   public indexes: HasMany<typeof DocumentIndex>
@@ -17,12 +19,6 @@ export default class Document extends BaseModel {
   public directoryId: number
 
   @column()
-  public storageId: number
-
-  @belongsTo(() => Storage)
-  public storage: BelongsTo<typeof Storage>
-
-  @column()
   public editorId: number
 
   @column()
@@ -31,7 +27,7 @@ export default class Document extends BaseModel {
   @column()
   public path: string
 
-  @column()
+  @column({serializeAs: null})
   public secretKey: string
 
   @column.dateTime({ autoCreate: true })

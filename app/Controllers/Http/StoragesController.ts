@@ -22,14 +22,4 @@ export default class StoragesController {
         
         return storage.serialize()
     }
-
-    async destroy({request, auth, logger}) {
-        const storageId = request.param('id')
-        const storage = await Storage.findOrFail(storageId)
-        await storage.delete()
-        
-        logger.info(`Storage ${storage.id} deleted by user ${auth.user.id}`)
-
-        return { message: 'OK' }
-    }
 }

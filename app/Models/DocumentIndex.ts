@@ -10,7 +10,7 @@ export default class DocumentIndex extends BaseModel {
   public id: number
 
   @column()
-  public documentId: string
+  public documentId: number
 
   @column()
   public indexId: number

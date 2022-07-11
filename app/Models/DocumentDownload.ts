@@ -7,7 +7,7 @@ export default class DocumentDownload extends BaseModel {
   public id: string
 
   @column()
-  public documentId: string
+  public documentId: number
 
   @column()
   public userId: number

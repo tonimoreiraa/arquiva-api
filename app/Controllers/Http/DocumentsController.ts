@@ -12,6 +12,7 @@ import fs from 'fs';
 import DirectoryIndex from "App/Models/DirectoryIndex";
 import encrypt from 'node-file-encrypt';
 import DocumentDownload from "App/Models/DocumentDownload";
+import DocumentVersion from "App/Models/DocumentVersion";
 
 export default class DocumentsController {
 
@@ -30,7 +31,7 @@ export default class DocumentsController {
                 displayAs: index.index.displayAs,
                 value: index[index.index.type]
             })
-        ) }
+        )}
     }
 
     async search({request}) {
@@ -59,6 +60,21 @@ export default class DocumentsController {
         }        
 
         return documents
+    }
+
+    async duplicate({request, auth}) {
+        const documentId = request.param('id')
+        const document = await Document.findOrFail(documentId)
+        const duplicate = await Document.create({...document.toJSON(), id: undefined, editorId: auth.user.id, createdAt: undefined, updatedAt: undefined})
+
+        const documentIndexes = await DocumentIndex.query().preload('index').where('documentId', document.id)
+
+        for (const indexKey in documentIndexes) {
+            const index = documentIndexes[indexKey]
+            documentIndexes[indexKey] = await DocumentIndex.create({...index.toJSON(), documentId: duplicate.id, id: undefined})
+        }
+
+        return duplicate
     }
 
     async store({request, auth, logger}) {
@@ -95,28 +111,35 @@ export default class DocumentsController {
         // define properties
         const data = request.only(['directoryId'])
         data.organizationId = organization.id
-        data.storageId = storage.id
         data.editorId = auth.user.id
-        data.version = 0
+        data.version = 1
         data.secretKey = uuid()
-        data.id = uuid()
-
+        data.documentId = uuid()
+    
         // create path
         const now = new Date()
-        data.path = `${now.getFullYear()}/${('00' + Math.floor((now.getTime() - new 
-        Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}`
-        if (!fs.existsSync(storage.path + '/' + data.path)) {
-            const yearFolder = storage.path + '/' + data.path.split('/')[0]
+        const documentPath = `${now.getFullYear()}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}`
+        if (!fs.existsSync(storage.path + '/' + documentPath)) {
+            const yearFolder = storage.path + '/' + documentPath.split('/')[0]
             if (!fs.existsSync(yearFolder)) fs.mkdirSync(yearFolder)
-            fs.mkdirSync(storage.path + '/' + data.path)
+            fs.mkdirSync(storage.path + '/' + documentPath)
         }
+        fs.mkdirSync(storage.path + '/' + documentPath + '/' + data.documentId)
 
         // encrypt and save file
         const file = request.file('file')
-        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, `${storage.path}/${data.path}`, '.ged.tmp', false)
+        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, `${storage.path}/${documentPath}/${data.documentId}`, '.ged.tmp', false)
         encryptedFile.openSourceFile()
         await encryptedFile.encryptAsync(data.secretKey)
-        fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${data.path}/${data.id}-${data.version}.ged`)
+        fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${documentPath}/${data.documentId}/${data.documentId}-v${data.version}.ged`)
+
+        await DocumentVersion.create({
+            documentId: data.documentId,
+            version: data.version,
+            storageId: storage.id,
+            editorId: auth.user.id,
+            path: documentPath
+        })
 
         // create document
         const document = await Document.create(data)
@@ -128,11 +151,7 @@ export default class DocumentsController {
             const index = directory.indexes.find(x => x.id == indexId)
             
             if (index) {
-                await DocumentIndex.create({
-                    documentId: document.id,
-                    indexId,
-                    [index.type]: indexValue
-                })
+                await DocumentIndex.create({documentId: document.id, indexId, [index.type]: indexValue})
             }
         }
         
@@ -144,16 +163,17 @@ export default class DocumentsController {
     async download({request, response, auth, logger}) {
         const documentId = request.param('id')
         const document = await Document.findOrFail(documentId)
-        await document.load('storage')
+        const documentVersion = await DocumentVersion.query().where('version', document.version).where('document_id', document.documentId).firstOrFail()
+        await documentVersion.load('storage')
         
         // decrypt file
-        const encryptedFilePath = `${document.storage.path}/${document.path}/${document.id}-${document.version}.ged`
-        const encryptedFile = new encrypt.FileEncrypt(encryptedFilePath, `${document.storage.path}/temp`)
+        const encryptedFilePath = await documentVersion.getLocalPath()
+        const encryptedFile = new encrypt.FileEncrypt(encryptedFilePath, `${documentVersion.storage.path}/temp`)
         encryptedFile.openSourceFile()
         await encryptedFile.decryptAsync(document.secretKey)
 
         // create download
-        const download = await DocumentDownload.create({documentId: document.id, userId: 1})
+        const download = await DocumentDownload.create({documentId: document.id, userId: auth.user.id})
 
         response.header('Content-Type', 'application/pdf')
         response.header('download-id', download.id)

@@ -26,6 +26,8 @@ export default class Storage extends BaseModel {
     if (!fs.existsSync(storage.path)) {
       throw new Error('Storage não existe.')
     }
-    fs.mkdirSync(storage.path + '/temp')
+    if (!fs.existsSync(storage.path + '/temp')) {
+      fs.mkdirSync(storage.path + '/temp')
+    }
   }
 }

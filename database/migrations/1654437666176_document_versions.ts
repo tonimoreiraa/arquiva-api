@@ -1,12 +1,14 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'documents_versions'
+  protected tableName = 'document_versions'
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.string('document_id').notNullable().references('documents.id')
+      table.string('document_id').notNullable()
+      table.integer('storage_id').notNullable().references('storages.id')
+      table.string('path').notNullable()
       table.integer('editor_id').notNullable().references('users.id')
       table.integer('version').notNullable()
       table.string('hash').notNullable()

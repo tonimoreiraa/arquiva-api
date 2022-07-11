@@ -29,6 +29,9 @@ Route.group(() => {
     Route.post('/documents/search', 'DocumentsController.search')
     Route.resource('/documents', 'DocumentsController')
     Route.get('/documents/:id/file', 'DocumentsController.download')
+    Route.post('/documents/:id/duplicate', 'DocumentsController.duplicate')
+    Route.resource('/documents/:documentId/versions', 'DocumentVersionsController')
+    Route.put('/documents/:documentId/indexes', 'DocumentIndexesController.update')
 
     Route.group(() => {
         Route.resource('/users', 'UsersController')
