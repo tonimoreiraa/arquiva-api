@@ -26,6 +26,7 @@ Route.group(() => {
     Route.resource('/organizations', 'OrganizationsController')
     Route.resource('/directories', 'DirectoriesController')
     Route.resource('/directory-indexes', 'DirectoryIndexesController')
+    Route.resource('/directory-indexes/:indexId/list-values', 'DirectoryIndexesListValuesController')
     Route.post('/documents/search', 'DocumentsController.search')
     Route.resource('/documents', 'DocumentsController')
     Route.get('/documents/:id/file', 'DocumentsController.download')

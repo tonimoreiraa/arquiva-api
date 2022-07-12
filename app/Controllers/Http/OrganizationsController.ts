@@ -1,6 +1,7 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Organization from "App/Models/Organization";
+import UserOrganization from "App/Models/UserOrganization";
 
 export default class OrganizationsController {
 
@@ -23,6 +24,8 @@ export default class OrganizationsController {
     async store({request, auth, logger}) {
         const data = request.only(['name', 'storageId'])
         const organization = await Organization.create(data)
+
+        await UserOrganization.create({userId: auth.user.id, organizationId: organization.id})
         
         logger.info(`Organization ${organization.id} created by user ${auth.user.id}`)
         

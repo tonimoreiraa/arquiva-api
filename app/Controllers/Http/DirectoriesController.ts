@@ -1,6 +1,7 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Directory from "App/Models/Directory"
+import UserDirectory from "App/Models/UserDirectory"
 
 export default class DirectoriesController {
 
@@ -16,6 +17,7 @@ export default class DirectoriesController {
         const directory = await Directory.findOrFail(directoryId)
         
         await directory.load('indexes')
+        await Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))
         
         return directory.serialize()
     }
@@ -24,6 +26,8 @@ export default class DirectoriesController {
         const data = request.only(['name', 'organizationId'])
 
         const directory = await Directory.create(data)
+
+        await UserDirectory.create({userId: auth.user.id, directoryId: directory.id})
 
         logger.info(`User ${auth.user.id} created directory ${directory.id}`)
 

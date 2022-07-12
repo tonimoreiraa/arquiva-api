@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import DirectoryIndexListValue from './DirectoryIndexListValue'
 
 export default class DirectoryIndex extends BaseModel {
 
@@ -7,6 +8,9 @@ export default class DirectoryIndex extends BaseModel {
 
   @column({ isPrimary: true })
   public id: number
+
+  @hasMany(() => DirectoryIndexListValue, {foreignKey: 'indexId', localKey: 'id'})
+  public listValues: HasMany<typeof DirectoryIndexListValue>
 
   @column()
   public directoryId: number

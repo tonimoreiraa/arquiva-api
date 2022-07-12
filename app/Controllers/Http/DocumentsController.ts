@@ -57,7 +57,7 @@ export default class DocumentsController {
                 if (operator == 'range') return document[indexId] >= value[0] && document[indexId] <= value[1]
                 return eval(`${document[indexId]} ${operator} ${value}`)
             })
-        }        
+        }
 
         return documents
     }

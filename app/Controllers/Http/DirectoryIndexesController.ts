@@ -7,6 +7,8 @@ export default class DirectoryIndexesController {
     async show({request}) {
         const indexId = request.param('id')
         const index = await DirectoryIndex.findOrFail(indexId)
+
+        await index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))
         
         return index.serialize()
     }
