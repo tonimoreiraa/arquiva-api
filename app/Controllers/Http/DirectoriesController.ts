@@ -7,7 +7,12 @@ export default class DirectoriesController {
 
     async index({request}) {
         const organizationId = request.input('organizationId')
-        const directories = await Directory.query().where('organization_id', organizationId)
+        var directories: any = Directory.query()
+        if (organizationId) directories.where('organization_id', organizationId)
+        directories.preload('indexes')
+        directories = await directories
+        
+        await Promise.all(directories.map(directory => Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))))
 
         return directories.map(directory => directory.serialize())
     }

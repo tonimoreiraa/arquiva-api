@@ -4,6 +4,11 @@ import DirectoryIndex from "App/Models/DirectoryIndex"
 
 export default class DirectoryIndexesController {
 
+    async index() {
+        const indexes = await DirectoryIndex.query().preload('listValues')
+        return indexes.map(index => index.serialize())
+    }
+
     async show({request}) {
         const indexId = request.param('id')
         const index = await DirectoryIndex.findOrFail(indexId)
