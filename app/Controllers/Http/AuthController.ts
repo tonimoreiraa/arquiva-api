@@ -14,7 +14,7 @@ export default class AuthController {
 
         const user = await User.findByOrFail('email', email)
 
-        if (!Hash.verify(user.password, password)) {
+        if (!(await Hash.verify(user.password, password))) {
             logger.info(`Usuário ${user.id} falhou autenticação no IP ${request.ip()}`)
             return response.badRequest({message: 'Senha incorreta.'})
         }
