@@ -22,7 +22,7 @@ export default class DirectoryIndex extends BaseModel {
   public type: 'number'|'string'|'boolean'|'list'|'datetime'
 
   @column()
-  public displayAs: 'cpf-cnpj'|'rg'|'bank-account-number'|'brl-money'
+  public displayAs: 'cpf-cnpj'|'rg'|'bank-account-number'|'brl-money'|'date'|'datetime'|'integer'|'float'
 
   @column()
   public notNullable: boolean

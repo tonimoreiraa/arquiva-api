@@ -34,6 +34,16 @@ export default class DocumentsController {
         )}
     }
 
+    paginate (arr, size: number) {
+        return arr.reduce((acc, val, i) => {
+            let idx = Math.floor(i / size)
+            let page = acc[idx] || (acc[idx] = [])
+            page.push(val)
+        
+            return acc
+        }, [])
+    }
+
     async search({request}) {
         const directoryId = request.input('directoryId')
         const directory = await Directory.findOrFail(directoryId)
@@ -52,14 +62,31 @@ export default class DocumentsController {
 
         const userIndexes = request.input('indexes')
         for (const indexId in userIndexes) {
-            const {operator, value} = userIndexes[indexId]
+            var {operator, value} = userIndexes[indexId]
             documents = documents.filter(document => {
-                if (operator == 'range') return document[indexId] >= value[0] && document[indexId] <= value[1]
-                return eval(`${document[indexId]} ${operator} ${value}`)
+                if (operator == 'interval') {
+                    const index = indexes.find(i => i.id == Number(indexId))
+                    if (index?.type == 'datetime') {
+                        value = value.map(v => new Date(v).getTime())
+                        document[indexId] = new Date(document[indexId]).getTime()
+                    }
+                    return document[indexId] >= value[0] && document[indexId] <= value[1]
+                }
+                return eval(`document[indexId] ${operator} value`)
             })
         }
 
-        return documents
+        const page = request.input('page') ?? 0
+        const perPage = request.input('pageLimit') ?? 25
+        const pagination = this.paginate(documents, perPage)
+
+        return {
+            perPage,
+            currentPage: page + 1,
+            lastPage: pagination.length,
+            total: documents.length,
+            results: pagination[page] ?? []
+        }
     }
 
     async duplicate({request, auth}) {
@@ -96,13 +123,13 @@ export default class DocumentsController {
             
             const args: any = []
 
-            if (schemaType == 'string') args.push({})
             args.push([])
-            if (index.minLength) args[1].push(rules.minLength(index.minLength))
-            if (index.maxLength) args[1].push(rules.maxLength(index.maxLength))
-            if (index.min || index.max) args[1].push(rules.range(index.min, index.max))
-            if (index.regex) args[1].push(rules.regex(new RegExp(index.regex)))
-            if (index.type == 'list') args[1].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
+            if (index.minLength) args[0].push(rules.minLength(index.minLength))
+            if (index.maxLength) args[0].push(rules.maxLength(index.maxLength))
+            if (index.min || index.max) args[0].push(rules.range(index.min, index.max))
+            if (index.regex) args[0].push(rules.regex(new RegExp(index.regex)))
+            if (index.type == 'list') args[0].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
+            if (schemaType == 'string') args.unshift({})
 
             return ['index-' + index.id, index.notNullable ? schema[schemaType](...args) : schema[schemaType].optional(...args)]
         })))
