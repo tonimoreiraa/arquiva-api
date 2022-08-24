@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, beforeDelete, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeCreate, beforeDelete, beforeSave, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import fs from 'fs'
 import Storage from './Storage'
 import md5File from 'md5-file';
 import Document from './Document';
 import User from './User';
-
+import Drive from '@ioc:Adonis/Core/Drive'
+import Env from '@ioc:Adonis/Core/Env'
 export default class DocumentVersion extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -53,6 +54,22 @@ export default class DocumentVersion extends BaseModel {
     } else {
       throw Error('Arquivo não existe.')
     }
+  }
+
+  @beforeSave()
+  public static async awsSync(version: DocumentVersion) {
+    if (Env.get('AWS_SYNC') === false) {
+      return false
+    }
+
+    // create paths
+    const localPath = await version.getLocalPath()
+    const driverPath = `storage-${version.storageId}/${version.path}/${version.documentId}/${version.documentId}-v${version.version}.ged`
+
+    // send to aws
+    const s3 = Drive.use('s3')
+    const file = fs.createReadStream(localPath)
+    await s3.putStream(driverPath, file)
   }
 
   @beforeDelete()
