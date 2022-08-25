@@ -3,7 +3,10 @@ import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Storage from './Storage'
 import User from './User';
 import { compose } from '@ioc:Adonis/Core/Helpers'
+import fs from 'fs'
 import { Observable } from '@ioc:Adonis/Addons/LucidObserver';
+import Drive from '@ioc:Adonis/Core/Drive'
+import Logger from '@ioc:Adonis/Core/Logger'
 import DocumentVersionObserver from 'App/Observers/DocumentVersionObserver';
 export default class DocumentVersion extends compose(BaseModel, Observable) {
 
@@ -48,5 +51,22 @@ export default class DocumentVersion extends compose(BaseModel, Observable) {
   public async getLocalPath(): Promise<string> {
     const storage = await Storage.findOrFail(this.storageId)
     return `${storage.path}/${this.path}/${this.documentId}/${this.documentId}-v${this.version}.ged`
+  }
+
+  public async awsSync(): Promise<void> {
+    if (this.s3Synced) return
+    try {
+      const localPath = await this.getLocalPath()
+      const driverPath = `storage-${this.storageId}/${this.path}/${this.documentId}/${this.documentId}-v${this.version}.ged`
+
+      // send to aws
+      const s3 = Drive.use('s3')
+      const file = fs.createReadStream(localPath)
+      await s3.putStream(driverPath, file)
+      this.s3Synced = true
+    } catch (e) {
+      this.s3Synced = false
+      Logger.error(`Falha ao sincronizar com AWS S3 versão ${this.version} do documento ${this.documentId}. ` + e)
+    }
   }
 }

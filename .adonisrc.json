@@ -6,7 +6,8 @@
     "@adonisjs/repl/build/commands",
     "@adonisjs/lucid/build/commands",
     "@adonisjs/bouncer/build/commands",
-    "@melchyore/adonis-lucid-observer/build/commands"
+    "@melchyore/adonis-lucid-observer/build/commands",
+    "adonis5-scheduler/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -36,7 +37,8 @@
     "@adonisjs/redis",
     "@adonisjs/bouncer",
     "@adonisjs/drive-s3",
-    "@melchyore/adonis-lucid-observer"
+    "@melchyore/adonis-lucid-observer",
+    "adonis5-scheduler"
   ],
   "aceProviders": [
     "@adonisjs/repl"

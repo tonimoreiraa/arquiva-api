@@ -34,7 +34,8 @@
       "@adonisjs/redis",
       "@adonisjs/bouncer",
       "@adonisjs/drive-s3",
-      "@melchyore/adonis-lucid-observer"
+      "@melchyore/adonis-lucid-observer",
+      "adonis5-scheduler"
     ]
   }
 }
