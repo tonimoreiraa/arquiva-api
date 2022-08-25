@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.integer('editor_id').notNullable().references('users.id')
       table.integer('version').notNullable()
       table.string('hash').notNullable()
+      table.boolean('s3_synced').notNullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

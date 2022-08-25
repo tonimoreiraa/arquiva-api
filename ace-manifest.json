@@ -550,6 +550,41 @@
           "description": "Actions to implement"
         }
       ]
+    },
+    "make:observer": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "@melchyore/adonis-lucid-observer/build/commands/MakeObserver",
+      "commandName": "make:observer",
+      "description": "Create an observer",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "observerName",
+          "name": "observerName",
+          "required": true,
+          "description": "Observer name"
+        }
+      ],
+      "aliases": [],
+      "flags": [
+        {
+          "name": "model",
+          "propertyName": "model",
+          "type": "string",
+          "alias": "m",
+          "description": "Model name"
+        },
+        {
+          "name": "global",
+          "propertyName": "isGlobal",
+          "type": "boolean",
+          "alias": "g",
+          "description": "Define an observer as global"
+        }
+      ]
     }
   },
   "aliases": {}

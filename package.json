@@ -37,6 +37,7 @@
     "@adonisjs/lucid": "^18.0.1",
     "@adonisjs/redis": "^7.3.0",
     "@adonisjs/repl": "^3.1.0",
+    "@melchyore/adonis-lucid-observer": "^1.0.2",
     "luxon": "^2.4.0",
     "md5-file": "^5.0.0",
     "node-file-encrypt": "^0.0.6",

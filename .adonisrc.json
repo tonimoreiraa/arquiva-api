@@ -5,7 +5,8 @@
     "@adonisjs/core/build/commands/index.js",
     "@adonisjs/repl/build/commands",
     "@adonisjs/lucid/build/commands",
-    "@adonisjs/bouncer/build/commands"
+    "@adonisjs/bouncer/build/commands",
+    "@melchyore/adonis-lucid-observer/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -17,7 +18,15 @@
   "preloads": [
     "./start/routes",
     "./start/kernel",
-    "./start/bouncer"
+    "./start/bouncer",
+    {
+      "file": "./start/observers",
+      "environment": [
+        "console",
+        "repl",
+        "web"
+      ]
+    }
   ],
   "providers": [
     "./providers/AppProvider",
@@ -26,7 +35,8 @@
     "@adonisjs/auth",
     "@adonisjs/redis",
     "@adonisjs/bouncer",
-    "@adonisjs/drive-s3"
+    "@adonisjs/drive-s3",
+    "@melchyore/adonis-lucid-observer"
   ],
   "aceProviders": [
     "@adonisjs/repl"
@@ -44,5 +54,8 @@
   },
   "testProviders": [
     "@japa/preset-adonis/TestsProvider"
-  ]
+  ],
+  "namespaces": {
+    "observers": "App/Observers"
+  }
 }
