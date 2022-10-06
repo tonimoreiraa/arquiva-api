@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import DirectoryIndex from './DirectoryIndex'
+import { CamelCaseNamingStrategy } from '../../providers/AppProvider'
+import AppBaseModel from './AppBaseModel'
 
-export default class Directory extends BaseModel {
+export default class Directory extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 

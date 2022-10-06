@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import DocumentIndex from './DocumentIndex'
+import AppBaseModel from './AppBaseModel'
 
-export default class Document extends BaseModel {
+export default class Document extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 

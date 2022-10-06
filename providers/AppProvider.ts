@@ -112,8 +112,6 @@ export default class AppProvider {
 
   public async ready () {
     // App is ready
-    const { BaseModel } = await import('@ioc:Adonis/Lucid/Orm')
-    BaseModel.namingStrategy = new CamelCaseNamingStrategy()
   }
 
   public async shutdown () {

@@ -8,7 +8,8 @@ import { Observable } from '@ioc:Adonis/Addons/LucidObserver';
 import Drive from '@ioc:Adonis/Core/Drive'
 import Logger from '@ioc:Adonis/Core/Logger'
 import DocumentVersionObserver from 'App/Observers/DocumentVersionObserver';
-export default class DocumentVersion extends compose(BaseModel, Observable) {
+import AppBaseModel from './AppBaseModel';
+export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   protected static $observers = [new DocumentVersionObserver()]
 

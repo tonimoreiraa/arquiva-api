@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import DirectoryIndex from './DirectoryIndex'
+import AppBaseModel from './AppBaseModel'
 
-export default class DocumentIndex extends BaseModel {
+export default class DocumentIndex extends AppBaseModel {
 
   public static table = 'document_indexes'
 
