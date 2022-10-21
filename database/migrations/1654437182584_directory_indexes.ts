@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.string('name').notNullable()
       table.string('type').notNullable()
       table.string('display_as')
-      table.boolean('not_nullable').notNullable()
+      table.boolean('not_nullable').notNullable().defaultTo(false)
       table.bigInteger('min')
       table.bigInteger('max')
       table.bigInteger('min_length')

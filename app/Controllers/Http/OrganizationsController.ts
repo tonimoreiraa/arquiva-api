@@ -15,7 +15,8 @@ export default class OrganizationsController {
     async show({request, bouncer}) {
         const organizationId = request.param('id')
         const organization = await Organization.findOrFail(organizationId)
-        
+        await organization.load('directories', (query) => query.withCount('documents'))
+
         await bouncer.with('OrganizationsPolicy').authorize('view', organization)
 
         return organization.serialize()

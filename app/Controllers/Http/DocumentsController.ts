@@ -47,7 +47,7 @@ export default class DocumentsController {
     async search({request}) {
         const directoryId = request.input('directoryId')
         const directory = await Directory.findOrFail(directoryId)
-        const indexes = await DirectoryIndex.query().select('id', 'type', 'name').where('directory_id', directory.id)
+        const indexes = await DirectoryIndex.query().select('id', 'type', 'name', 'displayAs').where('directory_id', directory.id)
 
         const documentIndexesRaw = await DocumentIndex.query().where('index_id', 'IN', indexes.map(index => index.id))
 
@@ -76,7 +76,14 @@ export default class DocumentsController {
             })
         }
 
-        const page = request.input('page') ?? 0
+        // if no index query, select all documents
+        if (!userIndexes || !userIndexes.length) {
+            documents = (await Document.query().select('id').where('directoryId', directory
+            .id)).map(document => ({documentId: document.id}))
+        }
+
+        var page = request.input('page')
+        page = page ? page - 1 : 0
         const perPage = request.input('pageLimit') ?? 25
         const pagination = this.paginate(documents, perPage)
 
@@ -85,7 +92,8 @@ export default class DocumentsController {
             currentPage: page + 1,
             lastPage: pagination.length,
             total: documents.length,
-            results: pagination[page] ?? []
+            results: pagination[page] ?? [],
+            indexes
         }
     }
 
