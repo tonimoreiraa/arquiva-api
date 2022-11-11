@@ -18,7 +18,11 @@ export default class DocumentsController {
 
     async show({request}) {
         const documentId = request.param('id')
-        const document = await Document.findOrFail(documentId)
+        const document = await Document.query().where('id', documentId)
+        .preload('directory')
+        .preload('editor')
+        .preload('organization')
+        .firstOrFail()
 
         const documentIndexes = await DocumentIndex.query().preload('index').where('documentId', document.id)
         
@@ -77,9 +81,18 @@ export default class DocumentsController {
         }
 
         // if no index query, select all documents
-        if (!userIndexes || !userIndexes.length) {
+        if (!userIndexes || !Object.values(userIndexes).length) {
             documents = (await Document.query().select('id').where('directoryId', directory
-            .id)).map(document => ({documentId: document.id}))
+            .id)
+            .preload('indexes'))
+            .map(document => ({
+                documentId: document.id,
+                ...Object.fromEntries(document.indexes.map(index => {
+                    const directoryIndex: any = indexes.find(i => i.id === index.indexId)
+                    console.log(directoryIndex.serialize(), index.serialize())
+                    return [index.indexId, index[directoryIndex.type]]
+                })
+            )}))
         }
 
         var page = request.input('page')

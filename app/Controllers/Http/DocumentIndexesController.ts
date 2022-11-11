@@ -1,7 +1,6 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Directory from 'App/Models/Directory'
-import DirectoryIndex from 'App/Models/DirectoryIndex'
 import Document from 'App/Models/Document'
 import DocumentIndex from 'App/Models/DocumentIndex'
 
@@ -45,7 +44,14 @@ export default class DocumentIndexesController {
             }
         }
 
-        return documentIndexes.map(index => index.serialize())
-    }
+        await Promise.all(documentIndexes.map(i => i.load('index')))
 
+        return documentIndexes.map(index => index.serialize()).map(index => ({
+            id: index.index.id,
+            name: index.index.name,
+            type: index.index.type,
+            displayAs: index.index.displayAs,
+            value: index[index.index.type]
+        }))
+    }
 }
