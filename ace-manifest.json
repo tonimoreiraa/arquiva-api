@@ -616,6 +616,44 @@
       "args": [],
       "aliases": [],
       "flags": []
+    },
+    "backup:create": {
+      "settings": {
+        "loadApp": true
+      },
+      "commandPath": "@dpi/adonis-backup-helper/build/commands/BackupCreate",
+      "commandName": "backup:create",
+      "description": "Generate application backup",
+      "args": [],
+      "aliases": [],
+      "flags": [
+        {
+          "name": "name",
+          "propertyName": "name",
+          "type": "string",
+          "alias": "n",
+          "description": "Defines the name from backup"
+        }
+      ]
+    },
+    "backup:restore": {
+      "settings": {
+        "loadApp": true
+      },
+      "commandPath": "@dpi/adonis-backup-helper/build/commands/BackupRestore",
+      "commandName": "backup:restore",
+      "description": "Restore backup",
+      "args": [],
+      "aliases": [],
+      "flags": [
+        {
+          "name": "name",
+          "propertyName": "name",
+          "type": "string",
+          "alias": "n",
+          "description": "Defines the name from backup"
+        }
+      ]
     }
   },
   "aliases": {}

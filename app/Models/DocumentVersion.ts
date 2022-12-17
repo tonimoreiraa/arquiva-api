@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Storage from './Storage'
 import User from './User';
 import { compose } from '@ioc:Adonis/Core/Helpers'
@@ -51,7 +51,7 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   public async getLocalPath(): Promise<string> {
     const storage = await Storage.findOrFail(this.storageId)
-    return `${storage.path}/${this.path}/${this.documentId}/${this.documentId}-v${this.version}.ged`
+    return `${storage.path}/${this.path}/${this.documentId}-v${this.version}.ged`
   }
 
   public async awsSync(): Promise<void> {

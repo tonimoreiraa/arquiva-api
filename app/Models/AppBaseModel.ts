@@ -5,4 +5,6 @@ export default class AppBaseModel extends BaseModel {
  
   public static namingStrategy = new CamelCaseNamingStrategy()
 
+  public maintainerId: number
+
 }

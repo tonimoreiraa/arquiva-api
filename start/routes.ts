@@ -40,5 +40,6 @@ Route.group(() => {
         Route.resource('/storages', 'StoragesController')
         Route.resource('/users/:userId/organizations', 'UserOrganizationsController')
         Route.resource('/users/:userId/directories', 'UserDirectoriesController')
+        Route.get('/organizations/:id/report', 'DocumentReportsController.index')
     }).middleware('isAdmin')
 }).middleware('auth')

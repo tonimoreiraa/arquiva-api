@@ -166,20 +166,15 @@ export default class DocumentsController {
     
         // create path
         const now = new Date()
-        const documentPath = `${now.getFullYear()}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}`
-        if (!fs.existsSync(storage.path + '/' + documentPath)) {
-            const yearFolder = storage.path + '/' + documentPath.split('/')[0]
-            if (!fs.existsSync(yearFolder)) fs.mkdirSync(yearFolder)
-            fs.mkdirSync(storage.path + '/' + documentPath)
-        }
-        fs.mkdirSync(storage.path + '/' + documentPath + '/' + data.documentId)
+        const documentPath = `${now.getFullYear()}/${data.organizationId}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}/${data.documentId}`
+        fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
 
         // encrypt and save file
         const file = request.file('file')
-        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, `${storage.path}/${documentPath}/${data.documentId}`, '.ged.tmp', false)
+        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, `${storage.path}/${documentPath}`, '.ged.tmp', false)
         encryptedFile.openSourceFile()
         await encryptedFile.encryptAsync(data.secretKey)
-        fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${documentPath}/${data.documentId}/${data.documentId}-v${data.version}.ged`)
+        fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.ged`)
 
         await DocumentVersion.create({
             documentId: data.documentId,
