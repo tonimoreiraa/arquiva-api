@@ -13,6 +13,7 @@ export default class extends BaseSchema {
       table.integer('editor_id').notNullable().references('users.id')
       table.integer('version').notNullable()
       table.string('hash').notNullable()
+      table.bigInteger('size')
       table.boolean('s3_synced').notNullable()
 
       /**

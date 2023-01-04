@@ -1,8 +1,12 @@
 import { DateTime } from 'luxon'
 import { afterCreate, BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 import Redis from '@ioc:Adonis/Addons/Redis'
+import { CamelCaseNamingStrategy } from '../../providers/AppProvider'
 
 export default class Mantainer extends BaseModel {
+  
+  public static namingStrategy = new CamelCaseNamingStrategy()
+
   @column({ isPrimary: true })
   public id: number
 

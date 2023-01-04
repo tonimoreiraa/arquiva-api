@@ -41,6 +41,9 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
   public hash: string
 
   @column()
+  public size: number
+
+  @column()
   public s3Synced: boolean
 
   @column.dateTime({ autoCreate: true })

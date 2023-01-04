@@ -1,11 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
+import { beforeCreate, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import fs from 'fs';
 import AppBaseModel from './AppBaseModel';
+import DocumentVersion from './DocumentVersion';
 
 export default class Storage extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
+
+  @hasMany(() => DocumentVersion)
+  public documents: HasMany<typeof DocumentVersion>
 
   @column()
   public name: string

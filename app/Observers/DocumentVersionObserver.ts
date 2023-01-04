@@ -11,6 +11,7 @@ export default class DocumentVersionObserver implements ObserverContract {
     const filePath = await version.getLocalPath()
     if (fs.existsSync(filePath)) {
       version.hash = await md5File(filePath)
+      version.size = (fs.statSync(filePath)).size
     } else {
       throw Error('Arquivo não existe.')
     }

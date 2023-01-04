@@ -19,7 +19,13 @@ export default class OrganizationsController {
 
         await bouncer.with('OrganizationsPolicy').authorize('view', organization)
 
-        return organization.serialize()
+        const totalDocuments = organization.directories.map(d => Number(d.$extras.documents_count)).reduce((x, y) => x + y, 0)
+
+        return {
+            ...organization.serialize(),
+            totalDocuments,
+            directories: organization.directories.map(directory => ({...directory.serialize(), documentsCount: directory.$extras.documents_count}))
+        }
     }
 
     async store({request, auth, logger}) {
