@@ -25,7 +25,7 @@ export default class DocumentVersionsController {
         const versionId = lastestVersion.version + 1
 
         // encrypt and save file
-        const filePath = `${storage.path}/${lastestVersion.path}/${document.documentId}`
+        const filePath = `${storage.path}/${lastestVersion.path}`
         const file = request.file('file')
         const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, filePath, '.ged.tmp', false)
         encryptedFile.openSourceFile()

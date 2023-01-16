@@ -11,9 +11,9 @@ import CreateDocumentValidator from "App/Validators/CreateDocumentValidator";
 import fs from 'fs';
 import DirectoryIndex from "App/Models/DirectoryIndex";
 import encrypt from 'node-file-encrypt';
-import DocumentDownload from "App/Models/DocumentDownload";
 import DocumentVersion from "App/Models/DocumentVersion";
-
+import AdmZip from 'adm-zip';
+import { Readable } from 'stream';
 export default class DocumentsController {
 
     async show({request}) {
@@ -206,23 +206,40 @@ export default class DocumentsController {
     async download({request, response, auth, logger}) {
         const documentId = request.param('id')
         const document = await Document.findOrFail(documentId)
-        const documentVersion = await DocumentVersion.query().where('version', document.version).where('document_id', document.documentId).firstOrFail()
-        await documentVersion.load('storage')
-        
-        // decrypt file
-        const encryptedFilePath = await documentVersion.getLocalPath()
-        const encryptedFile = new encrypt.FileEncrypt(encryptedFilePath, `${documentVersion.storage.path}/temp`)
-        encryptedFile.openSourceFile()
-        await encryptedFile.decryptAsync(document.secretKey)
 
-        // create download
-        const download = await DocumentDownload.create({documentId: document.id, userId: auth.user.id})
+        const download = await Document.export(document, auth.user.id)
 
         response.header('Content-Type', 'application/pdf')
-        response.header('download-id', download.id)
+        response.header('download-id', download.download.id)
 
-        response.download(encryptedFile.decryptFilePath, true)
-        logger.info(`User ${auth.user.id} download document ${document.id}. DownloadID: ${download.id}`)
+        response.download(download.path, true)
+        logger.info(`User ${auth.user.id} download document ${document.id}. DownloadID: ${download.download.id}`)
+    }
+
+    async exportList({request, auth, response})
+    {
+        const indexesIDs = request.input('indexes')
+        const indexes = await DirectoryIndex.findMany(indexesIDs)
+        const documentsIDs = request.input('documents')
+        const documents = await Document.findMany(documentsIDs)
+        const zip = new AdmZip()
+
+        for (const document of documents) {
+            const d = await Document.export(document, auth.user.id)
+            await document.load('indexes', query => query.where('index_id', 'IN', indexesIDs))
+            const documentIndexes = document.indexes
+            var path = [...indexesIDs.map(id => {
+                const index: any = indexes.find(i => i.id == id)
+                // @ts-ignore
+                return documentIndexes.find(i => i.indexId == index.id)[index.type].toLocaleString().replace('/', '-').replace('\\', '-')
+            }), document.id]
+
+            zip.addFile(path.join('-') + '.pdf', fs.readFileSync(d.path))
+        }
+
+        response.header('Content-Type', 'application/zip')
+
+        return response.stream(Readable.from(zip.toBuffer()))
     }
 
 }

@@ -34,6 +34,7 @@ Route.group(() => {
     Route.post('/documents/:id/duplicate', 'DocumentsController.duplicate')
     Route.resource('/documents/:documentId/versions', 'DocumentVersionsController')
     Route.put('/documents/:documentId/indexes', 'DocumentIndexesController.update')
+    Route.post('/documents/export-list', 'DocumentsController.exportList')
 
     Route.group(() => {
         Route.resource('/users', 'UsersController')

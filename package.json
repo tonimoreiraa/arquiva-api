@@ -39,6 +39,7 @@
     "@adonisjs/repl": "^3.1.0",
     "@dpi/adonis-backup-helper": "file:.yalc/@dpi/adonis-backup-helper",
     "@melchyore/adonis-lucid-observer": "^1.0.2",
+    "adm-zip": "^0.5.10",
     "adonis5-scheduler": "^2.0.2",
     "drivelist": "^11.0.4",
     "luxon": "^2.4.0",

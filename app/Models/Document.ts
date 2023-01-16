@@ -48,4 +48,24 @@ export default class Document extends AppBaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  public static async export(document: Document, userId: number)
+  {
+    const DocumentVersion = (await import('./DocumentVersion')).default
+    const DocumentDownload = (await import('./DocumentDownload')).default
+    const encrypt = (await import('node-file-encrypt')).default
+    const documentVersion = await DocumentVersion.query().where('version', document.version).where('document_id', document.documentId).firstOrFail()
+        await documentVersion.load('storage')
+        
+        // decrypt file
+        const encryptedFilePath = await documentVersion.getLocalPath()
+        const encryptedFile = new encrypt.FileEncrypt(encryptedFilePath, `${documentVersion.storage.path}/temp`)
+        encryptedFile.openSourceFile()
+        await encryptedFile.decryptAsync(document.secretKey)
+
+        // create download
+        const download = await DocumentDownload.create({documentId: document.id, userId})
+
+        return {download, path: encryptedFile.decryptFilePath}
+  }
 }
