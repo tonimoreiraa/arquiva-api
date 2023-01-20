@@ -14,6 +14,7 @@ import encrypt from 'node-file-encrypt';
 import DocumentVersion from "App/Models/DocumentVersion";
 import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
+import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 export default class DocumentsController {
 
     async show({request}) {
@@ -82,17 +83,21 @@ export default class DocumentsController {
 
         // if no index query, select all documents
         if (!userIndexes || !Object.values(userIndexes).length) {
-            documents = (await Document.query().select('id').where('directoryId', directory
+            documents = await Promise.all((await Document.query().select('id').where('directoryId', directory
             .id)
             .preload('indexes'))
-            .map(document => ({
-                documentId: document.id,
-                ...Object.fromEntries(document.indexes.map(index => {
+            .map(async (document) => {
+                const d = {documentId: document.id}
+                const d2 = Object.fromEntries(await Promise.all(document.indexes.map(async (index) => {
                     const directoryIndex: any = indexes.find(i => i.id === index.indexId)
-                    console.log(directoryIndex.serialize(), index.serialize())
+                    if (directoryIndex.type == 'list') {
+                        const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
+                        return [index.indexId, value]
+                    }
                     return [index.indexId, index[directoryIndex.type]]
-                })
-            )}))
+                })))
+                return {...d, ...d2}
+            }))
         }
 
         var page = request.input('page')
