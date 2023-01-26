@@ -7,7 +7,6 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
-      table.integer('mantainer_id').notNullable().references('mantainers.id')
       table.integer('directory_id').notNullable().references('directories.id')
       table.string('name').notNullable()
       table.string('type').notNullable()

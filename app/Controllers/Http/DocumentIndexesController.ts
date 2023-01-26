@@ -1,6 +1,7 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Directory from 'App/Models/Directory'
+import DirectoryIndexListValue from 'App/Models/DirectoryIndexListValue'
 import Document from 'App/Models/Document'
 import DocumentIndex from 'App/Models/DocumentIndex'
 
@@ -22,11 +23,11 @@ export default class DocumentIndexesController {
 
             if (schemaType == 'string') args.push({})
             args.push([])
-            if (index.minLength) args[1].push(rules.minLength(index.minLength))
-            if (index.maxLength) args[1].push(rules.maxLength(index.maxLength))
-            if (index.min || index.max) args[1].push(rules.range(index.min, index.max))
-            if (index.regex) args[1].push(rules.regex(new RegExp(index.regex)))
-            if (index.type == 'list') args[1].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
+            if (index.minLength) args[args.length - 1].push(rules.minLength(index.minLength))
+            if (index.maxLength) args[args.length - 1].push(rules.maxLength(index.maxLength))
+            if (index.min || index.max) args[args.length - 1].push(rules.range(index.min, index.max))
+            if (index.regex) args[args.length - 1].push(rules.regex(new RegExp(index.regex)))
+            if (index.type == 'list') args[args.length - 1].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
 
             return ['index-' + index.id, schema[schemaType].optional(...args)]
         })))
@@ -46,12 +47,20 @@ export default class DocumentIndexesController {
 
         await Promise.all(documentIndexes.map(i => i.load('index')))
 
-        return documentIndexes.map(index => index.serialize()).map(index => ({
-            id: index.index.id,
-            name: index.index.name,
-            type: index.index.type,
-            displayAs: index.index.displayAs,
-            value: index[index.index.type]
+        return Promise.all(documentIndexes.map(index => index.serialize()).map(async (index) => {
+            const directoryIndex: any = directory.indexes.find(i => i.id === index.indexId)
+            var val: any = index[index.index.type]
+            if (directoryIndex.type == 'list') {
+                const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
+                val = value
+            }
+            return {
+                id: index.index.id,
+                name: index.index.name,
+                type: index.index.type,
+                displayAs: index.index.displayAs,
+                value: val
+            }
         }))
     }
 }

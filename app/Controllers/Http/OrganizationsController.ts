@@ -29,7 +29,7 @@ export default class OrganizationsController {
     }
 
     async store({request, auth, logger}) {
-        const data = request.only(['name', 'storageId'])
+        const data = request.only(['name', 'storageId', 'mantainerId'])
         const organization = await Organization.create(data)
 
         await UserOrganization.create({userId: auth.user.id, organizationId: organization.id})

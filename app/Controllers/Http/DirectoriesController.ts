@@ -28,7 +28,7 @@ export default class DirectoriesController {
     }
 
     async store({request, logger, auth}) {
-        const data = request.only(['name', 'organizationId'])
+        const data = request.only(['name', 'organizationId', 'mantainerId'])
 
         const directory = await Directory.create(data)
 

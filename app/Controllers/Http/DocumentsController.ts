@@ -20,7 +20,7 @@ export default class DocumentsController {
     async show({request}) {
         const documentId = request.param('id')
         const document = await Document.query().where('id', documentId)
-        .preload('directory')
+        .preload('directory', query => query.preload('indexes'))
         .preload('editor')
         .preload('organization')
         .firstOrFail()
@@ -29,12 +29,20 @@ export default class DocumentsController {
         
         return {
             ...document.serialize(),
-            indexes: documentIndexes.map(index => ({
-                id: index.index.id,
-                name: index.index.name,
-                type: index.index.type,
-                displayAs: index.index.displayAs,
-                value: index[index.index.type]
+            indexes: await Promise.all(documentIndexes.map(async (index) => {
+                var val: any = index[index.index.type]
+                const directoryIndex: any = document.directory.indexes.find(i => i.id === index.indexId)
+                if (directoryIndex.type == 'list') {
+                    const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
+                    val = value
+                }
+                return {
+                    id: index.index.id,
+                    name: index.index.name,
+                    type: index.index.type,
+                    displayAs: index.index.displayAs,
+                    value: val
+                }
             })
         )}
     }
@@ -162,7 +170,7 @@ export default class DocumentsController {
         const documentIndexesValues = await request.validate({ schema: s })
 
         // define properties
-        const data = request.only(['directoryId'])
+        const data = request.only(['directoryId', 'mantainerId'])
         data.organizationId = organization.id
         data.editorId = auth.user.id
         data.version = 1
