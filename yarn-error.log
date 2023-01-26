@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /Users/tonimoreiraa/.yarn/bin/yarn.js add @dpi/adonis-backup-helper
+  /usr/local/bin/node /Users/tonimoreiraa/.yarn/bin/yarn.js add @tonimoreiraa/adonis-backup-helper
 
 PATH: 
   /Users/tonimoreiraa/.yarn/bin:/Users/tonimoreiraa/.config/yarn/global/node_modules/.bin:/Users/tonimoreiraa/Library/Android/sdk/tools/bin:/Users/tonimoreiraa/Library/Android/sdk/tools:/Users/tonimoreiraa/Library/Android/sdk/platform-tools:/opt/homebrew/opt/pyqt@5/5.15.4_1/bin:/opt/homebrew/opt/qt@5/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/tonimoreiraa/.yarn/bin:/Users/tonimoreiraa/.config/yarn/global/node_modules/.bin:/Users/tonimoreiraa/Library/Android/sdk/tools/bin:/Users/tonimoreiraa/Library/Android/sdk/tools:/Users/tonimoreiraa/Library/Android/sdk/platform-tools:/opt/homebrew/opt/pyqt@5/5.15.4_1/bin:/opt/homebrew/opt/qt@5/bin:/opt/homebrew/bin:/opt/homebrew/sbin
@@ -14,7 +14,7 @@ Platform:
   darwin arm64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@dpi%2fadonis-backup-helper: Not found
+  Error: https://registry.yarnpkg.com/@tonimoreiraa%2fadonis-backup-helper: Not found
       at Request.params.callback [as _callback] (/Users/tonimoreiraa/.yarn/lib/cli.js:66145:18)
       at Request.self.callback (/Users/tonimoreiraa/.yarn/lib/cli.js:140890:22)
       at Request.emit (node:events:390:28)
@@ -66,7 +66,7 @@ npm manifest:
       "@adonisjs/lucid": "^18.0.1",
       "@adonisjs/redis": "^7.3.0",
       "@adonisjs/repl": "^3.1.0",
-      "@dpi/adonis-backup-helper": "file:.yalc/@dpi/adonis-backup-helper",
+      "@tonimoreiraa/adonis-backup-helper": "file:.yalc/@tonimoreiraa/adonis-backup-helper",
       "@melchyore/adonis-lucid-observer": "^1.0.2",
       "adonis5-scheduler": "^2.0.2",
       "luxon": "^2.4.0",
@@ -1360,7 +1360,7 @@ Lockfile:
     resolved "https://registry.npmjs.org/@colors/colors/-/colors-1.5.0.tgz"
     integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
   
-  "@dpi/adonis-backup-helper@file:.yalc/@dpi/adonis-backup-helper":
+  "@tonimoreiraa/adonis-backup-helper@file:.yalc/@tonimoreiraa/adonis-backup-helper":
     version "1.0.2"
     dependencies:
       adm-zip "^0.5.9"

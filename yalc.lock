@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "@dpi/adonis-backup-helper": {
-      "signature": "811df3b0530acf611bfcbb214dc73bcd",
-      "file": true
-    }
-  }
-}

@@ -621,7 +621,7 @@
       "settings": {
         "loadApp": true
       },
-      "commandPath": "@dpi/adonis-backup-helper/build/commands/BackupCreate",
+      "commandPath": "@tonimoreiraa/adonis-backup-helper/build/commands/BackupCreate",
       "commandName": "backup:create",
       "description": "Generate application backup",
       "args": [],
@@ -640,7 +640,7 @@
       "settings": {
         "loadApp": true
       },
-      "commandPath": "@dpi/adonis-backup-helper/build/commands/BackupRestore",
+      "commandPath": "@tonimoreiraa/adonis-backup-helper/build/commands/BackupRestore",
       "commandName": "backup:restore",
       "description": "Restore backup",
       "args": [],

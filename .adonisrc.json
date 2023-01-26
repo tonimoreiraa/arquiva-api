@@ -8,7 +8,7 @@
     "@adonisjs/bouncer/build/commands",
     "@melchyore/adonis-lucid-observer/build/commands",
     "adonis5-scheduler/build/commands",
-    "@dpi/adonis-backup-helper/build/commands"
+    "@tonimoreiraa/adonis-backup-helper/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -40,7 +40,7 @@
     "@adonisjs/drive-s3",
     "@melchyore/adonis-lucid-observer",
     "adonis5-scheduler",
-    "@dpi/adonis-backup-helper"
+    "@tonimoreiraa/adonis-backup-helper"
   ],
   "aceProviders": [
     "@adonisjs/repl"

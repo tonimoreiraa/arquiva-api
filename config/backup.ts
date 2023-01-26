@@ -4,7 +4,7 @@ import Env from '@ioc:Adonis/Core/Env'
 export default {
 
     // Define the models that must be included in backups
-    models: ['User', 'Document', 'Directory', 'Organization'],
+    models: ['User', 'Document', 'Directory', 'Organization', 'DirectoryIndex'],
 
     // Define the paths that must be included in backups
     paths: [Application.tmpPath('uploads')],
