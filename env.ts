@@ -35,5 +35,6 @@ export default Env.rules({
     S3_BUCKET: Env.schema.string(),
     S3_REGION: Env.schema.string(),
     S3_ENDPOINT: Env.schema.string.optional(),
-    AWS_SYNC: Env.schema.boolean()
+    AWS_SYNC: Env.schema.boolean(),
+    STORAGES_PATH: Env.schema.string(),
 })

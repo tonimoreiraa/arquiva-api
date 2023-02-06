@@ -3,21 +3,12 @@ import Storage from 'App/Models/Storage'
 import fs from 'fs/promises'
 import syspath from 'path'
 import Application from '@ioc:Adonis/Core/Application'
-
-const drivelist = require('drivelist')
-
+import Env from '@ioc:Adonis/Core/Env'
 export default class PathsController {
 
     async index({request})
     {
-        const path = request.input('path')
-
-        if (!path) {
-            return {path, data: (await drivelist.list()).map(disk => disk.mountpoints.map(p => ({
-                name: p.label,
-                path: p.path
-            }))).reduce((x, y) => [...x, ...y])}
-        }
+        const path = request.input('path') ?? Env.get('STORAGES_PATH')
 
         const usedPaths = (await Storage.query().select('path')).map(s => s.path)
 
