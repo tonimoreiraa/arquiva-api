@@ -6,11 +6,8 @@ import Mantainer from 'App/Models/Mantainer'
 import Directory from 'App/Models/Directory'
 import DirectoryIndex from 'App/Models/DirectoryIndex'
 import DirectoryIndexListValue from 'App/Models/DirectoryIndexListValue'
-import axios from 'axios'
 import https from 'https'
-import md5 from 'md5'
 import Logger from '@ioc:Adonis/Core/Logger'
-import AdmZip from 'adm-zip'
 
 const DirectoryIndexType = {
   text: 'string',
@@ -96,10 +93,10 @@ export default class extends BaseSeeder {
         for (const document of documents) {
           console.log('http://172.16.50.99:8080/' + document.file_path.replace('/App/', ''))
           try {
-            const {data} = await axios.get('http://172.16.50.99:8080/' + document.file_path.replace('/App/', ''), {responseType: 'arraybuffer', httpsAgent: agent, maxContentLength: Infinity})
-            console.log(data.toString('utf-8'))
-            const zip = new AdmZip(data)
-            zip.extractAllTo('./', true, md5(organization.name));
+            // const {data} = await axios.get('http://172.16.50.99:8080/' + document.file_path.replace('/App/', ''), {responseType: 'arraybuffer', httpsAgent: agent, maxContentLength: Infinity})
+            // console.log(data.toString('utf-8'))
+            // const zip = new AdmZip(data)
+            // zip.extractAllTo('./', true, md5(organization.name));
           } catch (e) {
             Logger.error(e)
           }

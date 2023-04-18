@@ -15,6 +15,7 @@ import DocumentVersion from "App/Models/DocumentVersion";
 import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
+import Pdf from "App/Models/Pdf";
 export default class DocumentsController {
 
     async show({request}) {
@@ -138,7 +139,7 @@ export default class DocumentsController {
         return duplicate
     }
 
-    async store({request, auth, logger}) {
+    async store({request, auth, logger, response}) {
         await request.validate(CreateDocumentValidator)
         
         const directoryId = request.input('directoryId')
@@ -182,9 +183,25 @@ export default class DocumentsController {
         const documentPath = `${now.getFullYear()}/${data.organizationId}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}/${data.documentId}`
         fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
 
-        // encrypt and save file
+        // define file path
+        var fileTmpPath;
         const file = request.file('file')
-        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, `${storage.path}/${documentPath}`, '.ged.tmp', false)
+        const pdfId = request.input('pdfId')
+        if (!file && !pdfId) {
+            return response.badRequest({message: 'Você deve enviar um arquivo.'})
+        }
+
+        if (pdfId) {
+            const pdf = await Pdf.findOrFail(pdfId)
+            fileTmpPath = pdf.outputPath
+        } else {
+            fileTmpPath = file.tmpPath
+        }
+
+        console.log(fileTmpPath)
+
+        // encrypt and save file
+        const encryptedFile = new encrypt.FileEncrypt(fileTmpPath, `${storage.path}/${documentPath}`, '.ged.tmp', false)
         encryptedFile.openSourceFile()
         await encryptedFile.encryptAsync(data.secretKey)
         fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.ged`)

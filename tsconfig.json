@@ -36,8 +36,7 @@
       "@adonisjs/bouncer",
       "@adonisjs/drive-s3",
       "@melchyore/adonis-lucid-observer",
-      "adonis5-scheduler",
-      "@tonimoreiraa/adonis-backup-helper"
+      "adonis5-scheduler"
     ]
   }
 }

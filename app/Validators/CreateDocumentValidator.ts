@@ -25,7 +25,8 @@ export default class CreateDocumentValidator {
    */
   public schema = schema.create({
     directoryId: schema.number([rules.exists({table: 'directories', column: 'id'})]),
-    file: schema.file({extnames: ['pdf']}),
+    file: schema.file.optional({extnames: ['pdf']}),
+    pdfId: schema.number.optional([rules.exists({table: 'pdfs', column: 'id'})]),
     mantainerId: schema.number()
   })
 
