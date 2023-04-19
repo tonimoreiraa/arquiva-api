@@ -7,6 +7,7 @@ import Application from '@ioc:Adonis/Core/Application'
 import { PDFDocument } from 'pdf-lib';
 import path from 'path';
 import fs from 'fs/promises';
+import {v4 as uuid} from 'uuid'
 
 export default class PdfsController {
 
@@ -22,10 +23,11 @@ export default class PdfsController {
         const file = request.file('image')
         const pdfId = request.param('id')
 
-        await file.move(Application.tmpPath('uploads'))
+        const name = `${uuid()}.${file.extname}`
+        await file.move(Application.tmpPath('uploads'), {name})
 
         const image = await PdfImage.create({
-            path: file.clientName,
+            path: name,
             pdfId,
             index: payload.index
         })
@@ -45,7 +47,6 @@ export default class PdfsController {
         for (const image of pdf.images.sort((x, y) => x.index - y.index)) {
             const imagePath = tmpPath + path.sep + image.path
             const extName = path.extname(imagePath)
-            console.log(image.index, imagePath)
 
             const buffer = await fs.readFile(imagePath)
             const pageImage = extName.includes('jp') ? await pdf.embedJpg(buffer) : await pdfDoc.embedPng(buffer)
