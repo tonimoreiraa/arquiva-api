@@ -49,7 +49,7 @@ export default class PdfsController {
             const extName = path.extname(imagePath)
 
             const buffer = await fs.readFile(imagePath)
-            const pageImage = extName.includes('jp') ? await pdf.embedJpg(buffer) : await pdfDoc.embedPng(buffer)
+            const pageImage = extName.includes('jp') ? await pdfDoc.embedJpg(buffer) : await pdfDoc.embedPng(buffer)
             const { width, height } = pageImage.scale(0.5)
             const page = pdfDoc.addPage([width, height])
 
