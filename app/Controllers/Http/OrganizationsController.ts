@@ -5,9 +5,13 @@ import UserOrganization from "App/Models/UserOrganization";
 
 export default class OrganizationsController {
 
-    async index() {
-        // todo: get only user organizations
-        const organizations = await Organization.all()
+    async index({auth}) {
+        if (auth.user.type == 'super-admin') {
+            return (await Organization.all()).map(o => o.serialize())
+        }
+
+        const userOrganizations = await UserOrganization.query().where('userId', auth.user.id)
+        const organizations = await Organization.query().whereIn('id', userOrganizations.map(o => o.organizationId))
 
         return organizations.map(organization => organization.serialize())
     }

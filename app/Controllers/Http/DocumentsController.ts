@@ -198,8 +198,6 @@ export default class DocumentsController {
             fileTmpPath = file.tmpPath
         }
 
-        console.log(fileTmpPath)
-
         // encrypt and save file
         const encryptedFile = new encrypt.FileEncrypt(fileTmpPath, `${storage.path}/${documentPath}`, '.ged.tmp', false)
         encryptedFile.openSourceFile()
