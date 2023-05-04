@@ -19,7 +19,7 @@ export default class UsersController {
     async store({request, auth, logger}) {
         await request.validate(CreateUserValidator)
 
-        const data = request.only(['name', 'type', 'email', 'password'])
+        const data = request.only(['name', 'type', 'email', 'password', 'mantainerId'])
         const user = await User.create(data)
         logger.info(`User ${user.id} created by user ${auth.user.id}`)
         
