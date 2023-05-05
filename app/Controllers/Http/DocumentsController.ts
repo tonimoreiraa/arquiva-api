@@ -65,13 +65,13 @@ export default class DocumentsController {
 
         const documentIndexesRaw = await DocumentIndex.query().where('index_id', 'IN', indexes.map(index => index.id))
 
-        var documents: any = {}
-        indexes.forEach(index => {
-            documentIndexesRaw.filter(x => x.indexId == index.id).forEach(documentIndex => {
-                if (!documents[documentIndex.documentId]) {documents[documentIndex.documentId] = {}}
-                documents[documentIndex.documentId][index.id] = documentIndex[index.type]
-            })
-        })
+        var documents: any = Object.fromEntries(documentIndexesRaw.map(i => [i.documentId, {}]))
+        for (const index of indexes) {
+            for (const documentIndex of documentIndexesRaw.filter(x => x.indexId == index.id)) {
+                documents[documentIndex.documentId][index.id] = index.type == 'list' ? (await DirectoryIndexListValue.findOrFail(documentIndex[index.type])).serialize() : documentIndex[index.type]
+            }
+        }
+
         documents = Object.entries(documents).map((entry: any) => ({documentId: entry[0], ...entry[1]}))
 
         const userIndexes = request.input('indexes')
@@ -86,7 +86,8 @@ export default class DocumentsController {
                     }
                     return document[indexId] >= value[0] && document[indexId] <= value[1]
                 }
-                return eval(`document[indexId] ${operator} value`)
+
+                return eval(`(typeof document[indexId] == 'object' ? document[indexId].id : document[indexId]) ${operator} value`)
             })
         }
 
@@ -108,6 +109,7 @@ export default class DocumentsController {
                 return {...d, ...d2}
             }))
         }
+
 
         var page = request.input('page')
         page = page ? page - 1 : 0
