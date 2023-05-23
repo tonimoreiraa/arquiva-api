@@ -9,6 +9,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Logger from '@ioc:Adonis/Core/Logger'
 import DocumentVersionObserver from 'App/Observers/DocumentVersionObserver';
 import AppBaseModel from './AppBaseModel';
+import Document from './Document';
 export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   protected static $observers = [new DocumentVersionObserver()]
@@ -27,6 +28,9 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   @column()
   public documentId: string
+
+  @belongsTo(() => Document, {foreignKey: 'documentId', localKey: 'documentId'})
+  public document: BelongsTo<typeof Document>
 
   @column()
   public editorId: number

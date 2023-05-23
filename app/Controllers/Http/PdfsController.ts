@@ -35,9 +35,8 @@ export default class PdfsController {
         return image
     }
 
-    async export({request})
+    async exportPdf(pdfId: number)
     {
-        const pdfId = request.param('id')
         const pdf = await Pdf.findOrFail(pdfId)
         await pdf.load('images')
         const tmpPath = Application.tmpPath('uploads')
@@ -79,6 +78,12 @@ export default class PdfsController {
                 }
             }
         })
+    }
+
+    async export({request})
+    {
+        const pdfId = request.param('id')
+        return this.exportPdf(pdfId)
     }
 
 }

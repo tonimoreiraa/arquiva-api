@@ -42,7 +42,7 @@
     "@tonimoreiraa/adonis-backup-helper": "^1.0.4",
     "adm-zip": "^0.5.10",
     "adonis5-scheduler": "^2.0.2",
-    "drivelist": "^11.0.4",
+    "jszip": "^3.10.1",
     "luxon": "^2.4.0",
     "md5": "^2.3.0",
     "md5-file": "^5.0.0",
