@@ -95,7 +95,7 @@ export default class DocumentsController {
         if (!userIndexes || !Object.values(userIndexes).length) {
             documents = await Promise.all((await Document.query().select('id').where('directoryId', directory
             .id)
-            .preload('indexes'))
+            .preload('indexes', index => index.orderBy('indexId')))
             .map(async (document) => {
                 const d = {documentId: document.id}
                 const d2 = Object.fromEntries(await Promise.all(document.indexes.map(async (index) => {

@@ -5,7 +5,7 @@ import DirectoryIndex from "App/Models/DirectoryIndex"
 export default class DirectoryIndexesController {
 
     async index() {
-        const indexes = await DirectoryIndex.query().preload('listValues')
+        const indexes = await DirectoryIndex.query().preload('listValues').orderBy('id')
         return indexes.map(index => index.serialize())
     }
 
