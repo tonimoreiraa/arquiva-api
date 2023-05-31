@@ -17,7 +17,7 @@ export default class DirectoriesController {
         } else if (organizationId) {
             directories.where('organization_id', organizationId)
         }
-        directories.preload('indexes')
+        directories.preload('indexes', (index) => index.orderBy('id'))
         directories = await directories
         
         await Promise.all(directories.map(directory => Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))))
