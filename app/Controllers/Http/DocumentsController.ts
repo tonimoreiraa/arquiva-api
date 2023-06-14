@@ -1,4 +1,4 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Directory from "App/Models/Directory"
 import Document from "App/Models/Document"
@@ -16,6 +16,7 @@ import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 import Pdf from "App/Models/Pdf";
+import Database from '@ioc:Adonis/Lucid/Database'
 export default class DocumentsController {
 
     async show({request}) {
@@ -141,8 +142,14 @@ export default class DocumentsController {
         return duplicate
     }
 
-    async store({request, auth, logger, response}) {
+    async store({request, auth, logger, response}: HttpContextContract) {
+        await Database.beginGlobalTransaction()
         await request.validate(CreateDocumentValidator)
+        // verify if document already exists
+        
+        if (await Document.query().where('documentId', request.input('documentId')).first()) {
+            return response.status(409).send({message: 'O arquivo já foi enviado.'})
+        }
         
         const directoryId = request.input('directoryId')
         const directory = await Directory.findOrFail(directoryId)
@@ -173,12 +180,11 @@ export default class DocumentsController {
         const documentIndexesValues = await request.validate({ schema: s })
 
         // define properties
-        const data = request.only(['directoryId', 'mantainerId'])
+        const data: any = request.only(['directoryId', 'mantainerId', 'documentId'])
         data.organizationId = organization.id
-        data.editorId = auth.user.id
+        data.editorId = auth.user?.id
         data.version = 1
         data.secretKey = uuid()
-        data.documentId = uuid()
     
         // create path
         const now = new Date()
@@ -210,7 +216,7 @@ export default class DocumentsController {
             documentId: data.documentId,
             version: data.version,
             storageId: storage.id,
-            editorId: auth.user.id,
+            editorId: auth.user?.id,
             path: documentPath
         })
 
@@ -227,8 +233,9 @@ export default class DocumentsController {
                 await DocumentIndex.create({documentId: document.id, indexId, [index.type]: indexValue})
             }
         }
-        
-        logger.info(`User ${auth.user.id} created document ${document.id}`)
+        await Database.commitGlobalTransaction()
+
+        logger.info(`User ${auth.user?.id} created document ${document.id}`)
         
         return document.serialize()
     }
