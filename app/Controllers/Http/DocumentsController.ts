@@ -16,7 +16,6 @@ import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 import Pdf from "App/Models/Pdf";
-import Database from '@ioc:Adonis/Lucid/Database'
 export default class DocumentsController {
 
     async show({request}) {
@@ -143,7 +142,6 @@ export default class DocumentsController {
     }
 
     async store({request, auth, logger, response}: HttpContextContract) {
-        await Database.beginGlobalTransaction()
         await request.validate(CreateDocumentValidator)
         // verify if document already exists
         
@@ -233,7 +231,6 @@ export default class DocumentsController {
                 await DocumentIndex.create({documentId: document.id, indexId, [index.type]: indexValue})
             }
         }
-        await Database.commitGlobalTransaction()
 
         logger.info(`User ${auth.user?.id} created document ${document.id}`)
         
