@@ -10,6 +10,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import DocumentVersionObserver from 'App/Observers/DocumentVersionObserver';
 import AppBaseModel from './AppBaseModel';
 import Document from './Document';
+import Env from '@ioc:Adonis/Core/Env'
 export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   protected static $observers = [new DocumentVersionObserver()]
@@ -70,7 +71,9 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
       // send to aws
       const s3 = Drive.use('s3')
       const file = fs.createReadStream(localPath)
-      await s3.putStream(driverPath, file)
+      await s3.putStream(driverPath, file, {
+        StorageClass: Env.get('S3_STORAGE_CLASS')
+      })
       this.s3Synced = true
     } catch (e) {
       this.s3Synced = false
