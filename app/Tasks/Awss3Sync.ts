@@ -10,7 +10,7 @@ export default class Awss3Sync extends BaseTask {
 	 * Lock file save to `build/tmpTaskLock`
 	 */
 	public static get useLock() {
-		return false
+		return true
 	}
 
 	public async handle() {
