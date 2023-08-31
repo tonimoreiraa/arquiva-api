@@ -6,16 +6,11 @@ import UserDirectory from "App/Models/UserDirectory"
 export default class DirectoriesController {
 
     async index({request, auth}) {
-        const organizationId = request.input('organizationId')
-        
         const userDirectories = await UserDirectory.query().where('userId', auth.user.id)
 
         var directories: any = Directory.query()
         if (auth.user.type !== 'super-admin') {
             directories.whereIn('id', userDirectories.map(d => d.directoryId))
-            if (organizationId) directories.andWhere('organization_id', organizationId)
-        } else if (organizationId) {
-            directories.where('organization_id', organizationId)
         }
         directories.preload('indexes', (index) => index.orderBy('id'))
         directories = await directories
@@ -36,7 +31,7 @@ export default class DirectoriesController {
     }
 
     async store({request, logger, auth}) {
-        const data = request.only(['name', 'organizationId', 'mantainerId'])
+        const data = request.only(['name', 'mantainerId'])
 
         const directory = await Directory.create(data)
 

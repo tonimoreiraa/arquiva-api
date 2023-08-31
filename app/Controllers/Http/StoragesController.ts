@@ -4,8 +4,8 @@ import Storage from "App/Models/Storage"
 export default class StoragesController {
     async index() {
         const storages = await Storage.query()
-        .withCount('documents', (query) => query.as('documentsCount'))
-        .withCount('documents', (query) => query.sum('size').as('usedSpace'))
+            .withCount('documents', (query) => query.as('documentsCount'))
+            .withCount('documents', (query) => query.sum('size').as('usedSpace'))
         return storages.map(storage => ({...storage.serialize(), ...storage.$extras}))
     }
 

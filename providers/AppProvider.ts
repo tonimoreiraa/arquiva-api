@@ -112,17 +112,7 @@ export default class AppProvider {
 
   public async ready () {
     // App is ready
-    // Prepare all mantainers
     if (this.app.environment == 'web') {
-      const {default: Mantainer} = await import('App/Models/Mantainer')
-      const {default: Redis} = await import('@ioc:Adonis/Addons/Redis')
-      const mantainers = await Mantainer.all()
-      for (const maintainer of mantainers) {
-        await Redis.hset('mantainers', maintainer.id, JSON.stringify(maintainer))
-        for (const domain of maintainer.authorizedDomains) {
-          await Redis.hset('authorized-domains', domain, maintainer.id)
-        }
-      }
     }
   }
 

@@ -3,10 +3,11 @@
 import User from "App/Models/User"
 import LoginValidator from "App/Validators/LoginValidator"
 import Hash from '@ioc:Adonis/Core/Hash'
+import CreateUserValidator from "App/Validators/CreateUserValidator"
 
 export default class AuthController {
 
-    async login({request, auth, logger, response}) {
+    async signIn({request, auth, logger, response}) {
         await request.validate(LoginValidator)
 
         const email = request.input('email')
@@ -19,11 +20,27 @@ export default class AuthController {
             return response.badRequest({message: 'Senha incorreta.'})
         }
 
-        const {token} = await auth.use('api').generate(user)
+        const token = await auth.use('api').generate(user)
 
         logger.info(`Usuário ${user.id} autenticou no IP ${request.ip()}`)
 
         return { user, token }
+    }
+
+    async signUp({ request, logger, auth }) {
+        const payload = await request.validate(CreateUserValidator)
+
+        const user = await User.create(payload)
+        logger.info(`User ${user.id} registered.`)
+
+        const token = await auth.use('api').generate(user)
+        
+        return { user: user.serialize(), token }
+    }
+
+    async getUserData({ auth })
+    {
+        return auth.user
     }
 
 }

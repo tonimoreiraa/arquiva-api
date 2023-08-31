@@ -49,6 +49,12 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
   public size: number
 
   @column()
+  public type: string
+
+  @column()
+  public extname: string
+
+  @column()
   public s3Synced: boolean
 
   @column.dateTime({ autoCreate: true })
@@ -59,14 +65,14 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   public async getLocalPath(): Promise<string> {
     const storage = await Storage.findOrFail(this.storageId)
-    return `${storage.path}/${this.path}/${this.documentId}-v${this.version}.ged`
+    return `${storage.path}/${this.path}/${this.documentId}-v${this.version}.arq`
   }
 
   public async awsSync(): Promise<void> {
     if (this.s3Synced) return
     try {
       const localPath = await this.getLocalPath()
-      const driverPath = `storage-${this.storageId}/${this.path}/${this.documentId}/${this.documentId}-v${this.version}.ged`
+      const driverPath = `storage-${this.storageId}/${this.path}/${this.documentId}/${this.documentId}-v${this.version}.arq`
 
       // send to aws
       const s3 = Drive.use('s3')

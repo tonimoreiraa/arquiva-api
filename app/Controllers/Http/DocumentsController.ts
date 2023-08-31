@@ -15,7 +15,7 @@ import DocumentVersion from "App/Models/DocumentVersion";
 import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
-import Pdf from "App/Models/Pdf";
+import Drive from '@ioc:Adonis/Core/Drive'
 export default class DocumentsController {
 
     async show({request}) {
@@ -154,7 +154,6 @@ export default class DocumentsController {
         await directory.load('indexes')
 
         const organization = await Organization.findOrFail(directory.organizationId)
-        const storage = await Storage.findOrFail(organization.storageId)
 
         // validate indexes
         const s = schema.create(Object.fromEntries(directory.indexes.map(index => {
@@ -183,39 +182,12 @@ export default class DocumentsController {
         data.editorId = auth.user?.id
         data.version = 1
         data.secretKey = uuid()
-    
-        // create path
-        const now = new Date()
-        const documentPath = `${now.getFullYear()}/${data.organizationId}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}/${data.documentId}`
-        fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
-
-        // define file path
-        var fileTmpPath;
-        const file = request.file('file')
-        const pdfId = request.input('pdfId')
-        if (!file && !pdfId) {
-            return response.badRequest({message: 'Você deve enviar um arquivo.'})
-        }
-
-        if (pdfId) {
-            const pdf = await Pdf.findOrFail(pdfId)
-            fileTmpPath = pdf.outputPath
-        } else {
-            fileTmpPath = file.tmpPath
-        }
-
-        // encrypt and save file
-        const encryptedFile = new encrypt.FileEncrypt(fileTmpPath, `${storage.path}/${documentPath}`, '.ged.tmp', false)
-        encryptedFile.openSourceFile()
-        await encryptedFile.encryptAsync(data.secretKey)
-        fs.renameSync(encryptedFile.encryptFilePath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.ged`)
 
         await DocumentVersion.create({
             documentId: data.documentId,
             version: data.version,
-            storageId: storage.id,
             editorId: auth.user?.id,
-            path: documentPath
+            path: documentPath,
         })
 
         // create document
@@ -243,7 +215,7 @@ export default class DocumentsController {
 
         const download = await Document.export(document, auth.user.id)
 
-        response.header('Content-Type', 'application/pdf')
+        response.header('Content-Type', download.version.type)
         response.header('download-id', download.download.id)
 
         response.download(download.path, true)
@@ -268,7 +240,7 @@ export default class DocumentsController {
                 return documentIndexes.find(i => i.indexId == index.id)[index.type].toLocaleString().replace('/', '-').replace('\\', '-')
             }), document.id]
 
-            zip.addFile(path.join('-') + '.pdf', fs.readFileSync(d.path))
+            zip.addFile(path.join('-') + '.' + d.version.extname, fs.readFileSync(d.path))
         }
 
         response.header('Content-Type', 'application/zip')

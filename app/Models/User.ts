@@ -19,9 +19,6 @@ export default class User extends AppBaseModel {
   public name: string
 
   @column()
-  public type: 'client'|'operator'|'admin'|'super-admin'
-
-  @column()
   public email: string
 
   @column({ serializeAs: null })

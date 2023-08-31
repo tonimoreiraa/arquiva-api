@@ -16,9 +16,6 @@ export default class Directory extends AppBaseModel {
   public indexes: HasMany<typeof DirectoryIndex>
 
   @column()
-  public organizationId: number
-
-  @column()
   public name: string
 
   @column.dateTime({ autoCreate: true })

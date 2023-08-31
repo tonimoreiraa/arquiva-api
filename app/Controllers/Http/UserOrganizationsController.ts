@@ -19,7 +19,6 @@ export default class UserOrganizationsController {
         
         const pivots = await UserOrganization.query()
         .where('user_id', userId)
-        .where('organization_id', organizationId)
         
         if (pivots.length) {
             return response.badRequest({message: 'O usuário já possuí essa permissão.'})

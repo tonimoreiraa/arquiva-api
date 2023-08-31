@@ -66,6 +66,6 @@ export default class Document extends AppBaseModel {
         // create download
         const download = await DocumentDownload.create({documentId: document.id, userId})
 
-        return {download, path: encryptedFile.decryptFilePath}
+        return { version: documentVersion, download, path: encryptedFile.decryptFilePath }
   }
 }

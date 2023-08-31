@@ -27,7 +27,7 @@ export default class DocumentVersionsController {
         // encrypt and save file
         const filePath = `${storage.path}/${lastestVersion.path}`
         const file = request.file('file')
-        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, filePath, '.ged.tmp', false)
+        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, filePath, '.arq.tmp', false)
         encryptedFile.openSourceFile()
         await encryptedFile.encryptAsync(document.secretKey)
         fs.renameSync(encryptedFile.encryptFilePath, `${filePath}/${document.documentId}-v${versionId}.ged`)
@@ -37,7 +37,8 @@ export default class DocumentVersionsController {
             path: lastestVersion.path,
             documentId: document.documentId,
             editorId: auth.user.id,
-            version: versionId
+            version: versionId,
+            type: `${file.type}/${file.subtype}`
         })
 
         document.version = versionId
