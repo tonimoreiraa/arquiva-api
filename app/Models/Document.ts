@@ -53,19 +53,14 @@ export default class Document extends AppBaseModel {
   {
     const DocumentVersion = (await import('./DocumentVersion')).default
     const DocumentDownload = (await import('./DocumentDownload')).default
-    const encrypt = (await import('node-file-encrypt')).default
     const documentVersion = await DocumentVersion.query().where('version', document.version).where('document_id', document.documentId).firstOrFail()
         await documentVersion.load('storage')
         
-        // decrypt file
-        const encryptedFilePath = await documentVersion.getLocalPath()
-        const encryptedFile = new encrypt.FileEncrypt(encryptedFilePath, `${documentVersion.storage.path}/temp`)
-        encryptedFile.openSourceFile()
-        await encryptedFile.decryptAsync(document.secretKey)
+        const path = await documentVersion.getLocalPath()
 
         // create download
-        const download = await DocumentDownload.create({documentId: document.id, userId})
+        const download = await DocumentDownload.create({ documentId: document.id, userId })
 
-        return { version: documentVersion, download, path: encryptedFile.decryptFilePath }
+        return { version: documentVersion, download, path }
   }
 }

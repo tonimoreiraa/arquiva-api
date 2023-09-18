@@ -6,9 +6,6 @@ export default class CreateDocumentValidator {
 
   public schema = schema.create({
     directoryId: schema.number([rules.exists({table: 'directories', column: 'id'})]),
-    drive: schema.string(),
-    driveId: schema.number(),
-    mantainerId: schema.number(),
     documentId: schema.string({})
   })
 

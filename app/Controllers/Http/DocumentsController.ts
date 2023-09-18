@@ -2,20 +2,17 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Directory from "App/Models/Directory"
 import Document from "App/Models/Document"
-import Organization from "App/Models/Organization"
-import Storage from "App/Models/Storage"
 import { v4 as uuid } from 'uuid';
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import DocumentIndex from "App/Models/DocumentIndex";
 import CreateDocumentValidator from "App/Validators/CreateDocumentValidator";
 import fs from 'fs';
 import DirectoryIndex from "App/Models/DirectoryIndex";
-import encrypt from 'node-file-encrypt';
 import DocumentVersion from "App/Models/DocumentVersion";
 import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
-import Drive from '@ioc:Adonis/Core/Drive'
+import Storage from 'App/Models/Storage';
 export default class DocumentsController {
 
     async show({request}) {
@@ -23,7 +20,6 @@ export default class DocumentsController {
         const document = await Document.query().where('id', documentId)
         .preload('directory', query => query.preload('indexes'))
         .preload('editor')
-        .preload('organization')
         .firstOrFail()
 
         const documentIndexes = await DocumentIndex.query().preload('index').where('documentId', document.id)
@@ -58,7 +54,7 @@ export default class DocumentsController {
         }, [])
     }
 
-    async search({request}) {
+    async search({ request }) {
         const directoryId = request.input('directoryId')
         const directory = await Directory.findOrFail(directoryId)
         const indexes = await DirectoryIndex.query().select('id', 'type', 'name', 'displayAs').where('directory_id', directory.id)
@@ -142,6 +138,7 @@ export default class DocumentsController {
     }
 
     async store({request, auth, logger, response}: HttpContextContract) {
+        const storage = await Storage.firstOrFail()
         await request.validate(CreateDocumentValidator)
         // verify if document already exists
         
@@ -152,8 +149,6 @@ export default class DocumentsController {
         const directoryId = request.input('directoryId')
         const directory = await Directory.findOrFail(directoryId)
         await directory.load('indexes')
-
-        const organization = await Organization.findOrFail(directory.organizationId)
 
         // validate indexes
         const s = schema.create(Object.fromEntries(directory.indexes.map(index => {
@@ -175,19 +170,30 @@ export default class DocumentsController {
             return ['index-' + index.id, index.notNullable ? schema[schemaType](...args) : schema[schemaType].optional(...args)]
         })))
         const documentIndexesValues = await request.validate({ schema: s })
+        console.log(documentIndexesValues)
 
         // define properties
-        const data: any = request.only(['directoryId', 'mantainerId', 'documentId'])
-        data.organizationId = organization.id
+        const data: any = request.only(['directoryId', 'documentId'])
         data.editorId = auth.user?.id
         data.version = 1
         data.secretKey = uuid()
+
+        const now = new Date()
+        const documentPath = `${now.getFullYear()}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}/${data.documentId}`
+        fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
+        const file = request.file('file')
+
+        fs.renameSync(file?.tmpPath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
+
+        console.log(file)
 
         await DocumentVersion.create({
             documentId: data.documentId,
             version: data.version,
             editorId: auth.user?.id,
+            storageId: storage.id,
             path: documentPath,
+            type: `${file?.type}/${file?.subtype}`
         })
 
         // create document
