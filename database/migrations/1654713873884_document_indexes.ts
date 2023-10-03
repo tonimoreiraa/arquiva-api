@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.float('number', 10, 2)
       table.string('string')
       table.boolean('boolean')
-      table.integer('list').references('directory_index_list_values.id')
+      table.integer('select').references('directory_index_list_values.id')
       table.datetime('datetime')
 
       /**

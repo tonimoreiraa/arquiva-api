@@ -29,7 +29,7 @@ export default class DocumentsController {
             indexes: await Promise.all(documentIndexes.map(async (index) => {
                 var val: any = index[index.index.type]
                 const directoryIndex: any = document.directory.indexes.find(i => i.id === index.indexId)
-                if (directoryIndex.type == 'list') {
+                if (directoryIndex.type == 'select') {
                     const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
                     val = value
                 }
@@ -64,7 +64,7 @@ export default class DocumentsController {
         var documents: any = Object.fromEntries(documentIndexesRaw.map(i => [i.documentId, {}]))
         for (const index of indexes) {
             for (const documentIndex of documentIndexesRaw.filter(x => x.indexId == index.id)) {
-                documents[documentIndex.documentId][index.id] = index.type == 'list' ? (await DirectoryIndexListValue.findOrFail(documentIndex[index.type])).serialize() : documentIndex[index.type]
+                documents[documentIndex.documentId][index.id] = index.type == 'select' ? (await DirectoryIndexListValue.findOrFail(documentIndex[index.type])).serialize() : documentIndex[index.type]
             }
         }
 
@@ -96,7 +96,7 @@ export default class DocumentsController {
                 const d = {documentId: document.id}
                 const d2 = Object.fromEntries(await Promise.all(document.indexes.map(async (index) => {
                     const directoryIndex: any = indexes.find(i => i.id === index.indexId)
-                    if (directoryIndex.type == 'list') {
+                    if (directoryIndex.type == 'select') {
                         const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
                         return [index.indexId, value]
                     }
@@ -154,7 +154,7 @@ export default class DocumentsController {
         const s = schema.create(Object.fromEntries(directory.indexes.map(index => {
             const schemaType = {
                 datetime: 'date',
-                list: 'number'
+                select: 'number'
             }[index.type] ?? index.type
             
             const args: any = []
@@ -164,7 +164,7 @@ export default class DocumentsController {
             if (index.maxLength) args[0].push(rules.maxLength(index.maxLength))
             if (index.min || index.max) args[0].push(rules.range(index.min, index.max))
             if (index.regex) args[0].push(rules.regex(new RegExp(index.regex)))
-            if (index.type == 'list') args[0].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
+            if (index.type == 'select') args[0].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
             if (schemaType == 'string') args.unshift({})
 
             return ['index-' + index.id, index.notNullable ? schema[schemaType](...args) : schema[schemaType].optional(...args)]
@@ -185,15 +185,15 @@ export default class DocumentsController {
 
         fs.renameSync(file?.tmpPath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
 
-        console.log(file)
-
         await DocumentVersion.create({
             documentId: data.documentId,
             version: data.version,
             editorId: auth.user?.id,
             storageId: storage.id,
             path: documentPath,
-            type: `${file?.type}/${file?.subtype}`
+            type: `${file?.type}/${file?.subtype}`,
+            extname: file?.extname,
+            size: file?.size
         })
 
         // create document
@@ -215,7 +215,7 @@ export default class DocumentsController {
         return document.serialize()
     }
 
-    async download({request, response, auth, logger}) {
+    async download({request, response, auth, logger}: HttpContextContract) {
         const documentId = request.param('id')
         const document = await Document.findOrFail(documentId)
 
@@ -223,9 +223,11 @@ export default class DocumentsController {
 
         response.header('Content-Type', download.version.type)
         response.header('download-id', download.download.id)
+        response.header('Extname', download.version.extname)
+        response.header('Access-Control-Expose-Headers', 'Extname')
 
         response.download(download.path, true)
-        logger.info(`User ${auth.user.id} download document ${document.id}. DownloadID: ${download.download.id}`)
+        logger.info(`User ${auth.user?.id} download document ${document.id}. DownloadID: ${download.download.id}`)
     }
 
     async exportList({request, auth, response})

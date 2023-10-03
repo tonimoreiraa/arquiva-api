@@ -29,7 +29,7 @@ export default class DocumentIndex extends AppBaseModel {
   public boolean: boolean
   
   @column()
-  public list: number
+  public select: number
 
   @column()
   public datetime: DateTime

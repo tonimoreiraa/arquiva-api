@@ -27,7 +27,7 @@ export default class DocumentIndexesController {
             if (index.maxLength) args[args.length - 1].push(rules.maxLength(index.maxLength))
             if (index.min || index.max) args[args.length - 1].push(rules.range(index.min, index.max))
             if (index.regex) args[args.length - 1].push(rules.regex(new RegExp(index.regex)))
-            if (index.type == 'list') args[args.length - 1].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
+            if (index.type == 'select') args[args.length - 1].push(rules.exists({table: 'directory_index_list_values', column: 'id'}))
 
             return ['index-' + index.id, schema[schemaType].optional(...args)]
         })))
@@ -50,7 +50,7 @@ export default class DocumentIndexesController {
         return Promise.all(documentIndexes.map(index => index.serialize()).map(async (index) => {
             const directoryIndex: any = directory.indexes.find(i => i.id === index.indexId)
             var val: any = index[index.index.type]
-            if (directoryIndex.type == 'list') {
+            if (directoryIndex.type == 'select') {
                 const value = await DirectoryIndexListValue.findOrFail(index[directoryIndex.type])
                 val = value
             }

@@ -15,6 +15,7 @@ export default class extends BaseSchema {
       table.bigInteger('size')
       table.boolean('s3_synced').notNullable().defaultTo(false)
       table.string('type').notNullable()
+      table.string('extname').notNullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

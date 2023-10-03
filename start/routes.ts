@@ -7,6 +7,7 @@ Route.group(() => {
     Route.get('/auth/user', 'AuthController.getUserData')
     Route.resource('/organizations', 'OrganizationsController')
     Route.resource('/directories', 'DirectoriesController')
+    Route.get('/plans/usage', 'PlansController.getStorage')
     Route.resource('/directory-indexes', 'DirectoryIndexesController')
     Route.resource('/directory-indexes/:indexId/list-values', 'DirectoryIndexesListValuesController')
     Route.post('/documents/search', 'DocumentsController.search')

@@ -2,7 +2,6 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
 import Organization from 'App/Models/Organization'
 import Storage from 'App/Models/Storage'
-import Mantainer from 'App/Models/Mantainer'
 import Directory from 'App/Models/Directory'
 import DirectoryIndex from 'App/Models/DirectoryIndex'
 import DirectoryIndexListValue from 'App/Models/DirectoryIndexListValue'
@@ -11,7 +10,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 
 const DirectoryIndexType = {
   text: 'string',
-  select: 'list',
+  select: 'select',
   date: 'datetime',
   url: 'string',
   email: 'string'
@@ -34,7 +33,6 @@ export default class extends BaseSeeder {
   public async run () {
     // Write your database queries inside the run method
     const storageId = (await Storage.firstOrFail()).id
-    const mantainerId = (await Mantainer.firstOrFail()).id
 
     // connect to db
     Database.manager.add('old_ged', {
@@ -57,13 +55,13 @@ export default class extends BaseSeeder {
     const companies = await oldGedDb.query().select('*').from('companies')
     
     for (const company of companies) {
-      const organizationData = { name: company.completename, storageId, mantainerId }
+      const organizationData = { name: company.completename, storageId }
       Logger.info(`Importando empresa: ${organizationData.name}`)
       const organization = await Organization.updateOrCreate(organizationData, organizationData)
       const trees = await oldGedDb.query().select('*').from('tree').where('tree_id', company.tree_id).orWhere('id', company.tree_id)
 
       for (const tree of trees) {
-        const directoryData = {name: tree.name, organizationId: organization.id, mantainerId}
+        const directoryData = {name: tree.name, organizationId: organization.id }
         const directory = await Directory.updateOrCreate(directoryData, directoryData)
 
         for (const treeIndex of tree.indexes) {

@@ -20,7 +20,7 @@ export default class DirectoryIndex extends AppBaseModel {
   public name: string
 
   @column()
-  public type: 'number'|'string'|'boolean'|'list'|'datetime'
+  public type: 'number'|'string'|'boolean'|'select'|'datetime'
 
   @column()
   public displayAs: 'cpf-cnpj'|'rg'|'bank-account-number'|'brl-money'|'date'|'datetime'|'integer'|'float'

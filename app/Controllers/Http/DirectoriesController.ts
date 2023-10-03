@@ -7,14 +7,15 @@ export default class DirectoriesController {
 
     async index({request, auth}) {
         const userDirectories = await UserDirectory.query().where('userId', auth.user.id)
-
-        var directories: any = Directory.query()
-        if (auth.user.type !== 'super-admin') {
-            directories.whereIn('id', userDirectories.map(d => d.directoryId))
-        }
-        directories.preload('indexes', (index) => index.orderBy('id'))
-        directories = await directories
         
+        const directoryQuery = Directory.query()
+        if (auth.user.type !== 'super-admin') {
+            directoryQuery.whereIn('id', userDirectories.map(d => d.directoryId))
+        }
+        directoryQuery.preload('indexes', (index) => index.orderBy('id'))
+
+        const directories = await directoryQuery
+
         await Promise.all(directories.map(directory => Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))))
 
         return directories.map(directory => directory.serialize())
