@@ -183,7 +183,7 @@ export default class DocumentsController {
         fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
         const file = request.file('file')
 
-        fs.renameSync(file?.tmpPath, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
+        fs.renameSync(file?.tmpPath as string, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
 
         await DocumentVersion.create({
             documentId: data.documentId,
@@ -219,7 +219,7 @@ export default class DocumentsController {
         const documentId = request.param('id')
         const document = await Document.findOrFail(documentId)
 
-        const download = await Document.export(document, auth.user.id)
+        const download = await Document.export(document, auth.user?.id as number)
 
         response.header('Content-Type', download.version.type)
         response.header('download-id', download.download.id)

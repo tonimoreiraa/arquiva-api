@@ -11,6 +11,8 @@ import DocumentVersionObserver from 'App/Observers/DocumentVersionObserver';
 import AppBaseModel from './AppBaseModel';
 import Document from './Document';
 import Env from '@ioc:Adonis/Core/Env'
+
+/* @ts-ignore */
 export default class DocumentVersion extends compose(AppBaseModel, Observable) {
 
   protected static $observers = [new DocumentVersionObserver()]

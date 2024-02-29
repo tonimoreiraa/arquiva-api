@@ -1,17 +1,18 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Directory from "App/Models/Directory"
+import DirectoryShare from "App/Models/DirectoryShare"
 import UserDirectory from "App/Models/UserDirectory"
 
 export default class DirectoriesController {
 
-    async index({request, auth}) {
-        const userDirectories = await UserDirectory.query().where('userId', auth.user.id)
+    async index({ auth }) {
+        const userDirectories = await DirectoryShare.query()
+            .where('userId', auth.user.id)
+            .where('accepted', true)
         
         const directoryQuery = Directory.query()
-        if (auth.user.type !== 'super-admin') {
-            directoryQuery.whereIn('id', userDirectories.map(d => d.directoryId))
-        }
+        directoryQuery.whereIn('id', userDirectories.map(d => d.directoryId))
         directoryQuery.preload('indexes', (index) => index.orderBy('id'))
 
         const directories = await directoryQuery
@@ -37,6 +38,12 @@ export default class DirectoriesController {
         const directory = await Directory.create(data)
 
         await UserDirectory.create({userId: auth.user.id, directoryId: directory.id})
+        await DirectoryShare.create({
+            userId: auth.user.id,
+            directoryId: directory.id,
+            type: 'owner',
+            accepted: true
+        })
 
         logger.info(`User ${auth.user.id} created directory ${directory.id}`)
 

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
+import { beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
 import {v4 as uuid} from 'uuid';
 import AppBaseModel from './AppBaseModel';
 
