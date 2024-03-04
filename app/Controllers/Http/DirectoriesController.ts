@@ -15,7 +15,7 @@ export default class DirectoriesController {
 
         const directories = await directoryQuery
 
-        await Promise.all(directories.map(directory => Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))))
+        await Promise.all(directories.map(directory => Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value'))))))
 
         return directories.map(directory => directory.serialize())
     }
@@ -25,7 +25,7 @@ export default class DirectoriesController {
         const directory = await Directory.findOrFail(directoryId)
         
         await directory.load('indexes')
-        await Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value COLLATE "pt_BR"'))))
+        await Promise.all(directory.indexes.map(index => index.load('listValues', (query) => query.orderByRaw('value'))))
         
         return directory.serialize()
     }
