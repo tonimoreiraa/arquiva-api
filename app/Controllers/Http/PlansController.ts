@@ -9,7 +9,7 @@ export default class PlansController {
         const userId: number = auth.user?.id || 0
 
         const dics = await Directory.query()
-        .whereRaw(`id IN (SELECT id FROM user_directories WHERE user_id = ${userId})`)
+            .whereRaw(`id IN (SELECT id FROM directory_shares WHERE user_id = ${userId} and type = 'owner')`)
 
         const all = await DocumentVersion.query()
             .count('*', 'documents')

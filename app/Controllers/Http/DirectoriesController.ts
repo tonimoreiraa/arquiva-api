@@ -1,4 +1,4 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Directory from "App/Models/Directory"
 import DirectoryShare from "App/Models/DirectoryShare"
@@ -6,13 +6,11 @@ import UserDirectory from "App/Models/UserDirectory"
 
 export default class DirectoriesController {
 
-    async index({ auth }) {
-        const userDirectories = await DirectoryShare.query()
-            .where('userId', auth.user.id)
-            .where('accepted', true)
-        
+    async index({ auth }: HttpContextContract) {
+        const userId = auth.user?.id as number
+
         const directoryQuery = Directory.query()
-        directoryQuery.whereIn('id', userDirectories.map(d => d.directoryId))
+        directoryQuery.whereRaw(`id IN (SELECT id FROM directory_shares WHERE user_id = ${userId} and type = 'owner')`)
         directoryQuery.preload('indexes', (index) => index.orderBy('id'))
 
         const directories = await directoryQuery
