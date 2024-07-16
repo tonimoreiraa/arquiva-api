@@ -10,7 +10,7 @@ export default class DirectoriesController {
         const userId = auth.user?.id as number
 
         const directoryQuery = Directory.query()
-        directoryQuery.whereRaw(`id IN (SELECT id FROM directory_shares WHERE user_id = ${userId} and accepted = true)`)
+        directoryQuery.whereRaw(`id IN (SELECT directory_id as id FROM directory_shares WHERE user_id = ${userId} and accepted = true)`)
         directoryQuery.preload('indexes', (index) => index.orderBy('id'))
 
         const directories = await directoryQuery
