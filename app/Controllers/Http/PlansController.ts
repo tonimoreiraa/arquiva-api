@@ -14,7 +14,7 @@ export default class PlansController {
         const all = await DocumentVersion.query()
             .count('*', 'documents')
             .sum('size', 'usage')
-            .where('editor_id', userId)
+            .where('directory_id', 'IN', dics.map(d => d.id))
             .firstOrFail()
 
         const directories = await Promise.all(dics.map(async (directory) => {
