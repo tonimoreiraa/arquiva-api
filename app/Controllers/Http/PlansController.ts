@@ -11,23 +11,22 @@ export default class PlansController {
         const dics = await Directory.query()
             .whereRaw(`id IN (SELECT directory_id as id FROM directory_shares WHERE user_id = ${userId} and type = 'owner')`)
 
-        const all = await DocumentVersion.query()
-            .count('*', 'documents')
-            .sum('size', 'usage')
-            .where('directory_id', 'IN', dics.map(d => d.id))
-            .firstOrFail()
+        var usage = 0
+        var documents = 0
 
         const directories = await Promise.all(dics.map(async (directory) => {
             const all = await DocumentVersion.query()
-            .count('*', 'documents')
-            .sum('size', 'usage')
-            .whereRaw(`document_id IN (SELECT document_id FROM documents WHERE directory_id = ${directory.id})`)
-            .firstOrFail()
+                .count('*', 'documents')
+                .sum('size', 'usage')
+                .whereRaw(`document_id IN (SELECT document_id FROM documents WHERE directory_id = ${directory.id})`)
+                .firstOrFail()
+            usage += Number(all.$extras.usage)
+            documents += Number(all.$extras.documents)
 
-            return {...directory.serialize(), ...all.$extras}
+            return {...directory.serialize(), ...all.$extras }
         }))
 
-        return { plan: all.$extras, directories }
+        return { plan: { usage, documents }, directories }
     }
 
 }
