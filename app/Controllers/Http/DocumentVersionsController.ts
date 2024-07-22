@@ -27,10 +27,7 @@ export default class DocumentVersionsController {
         // encrypt and save file
         const filePath = `${storage.path}/${lastestVersion.path}`
         const file = request.file('file')
-        const encryptedFile = new encrypt.FileEncrypt(file.tmpPath, filePath, '.arq.tmp', false)
-        encryptedFile.openSourceFile()
-        await encryptedFile.encryptAsync(document.secretKey)
-        fs.renameSync(encryptedFile.encryptFilePath, `${filePath}/${document.documentId}-v${versionId}.arq`)
+        fs.renameSync(file.tmpPath, `${filePath}/${document.documentId}-v${versionId}.arq`)
 
         const version = await DocumentVersion.create({
             storageId: storage.id,
