@@ -185,7 +185,7 @@ export default class DocumentsController {
         fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
         const file = request.file('file')
 
-        fs.renameSync(file?.tmpPath as string, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
+        fs.copyFileSync(file?.tmpPath as string, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
 
         await DocumentVersion.create({
             documentId: data.documentId,
