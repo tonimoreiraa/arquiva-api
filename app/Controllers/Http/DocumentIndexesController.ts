@@ -16,7 +16,7 @@ export default class DocumentIndexesController {
         const s = schema.create(Object.fromEntries(directory.indexes.map(index => {
             const schemaType = {
                 datetime: 'date',
-                list: 'number'
+                select: 'number'
             }[index.type] ?? index.type
             
             const args: any = []
