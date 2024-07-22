@@ -38,6 +38,7 @@ export default class DocumentVersionsController {
             documentId: document.documentId,
             editorId: auth.user.id,
             version: versionId,
+            extname: file?.extname,
             type: `${file.type}/${file.subtype}`
         })
 
