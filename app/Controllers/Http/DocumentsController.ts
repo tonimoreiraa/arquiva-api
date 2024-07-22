@@ -59,7 +59,8 @@ export default class DocumentsController {
         const directory = await Directory.findOrFail(directoryId)
         const indexes = await DirectoryIndex.query().select('id', 'type', 'name', 'displayAs').where('directory_id', directory.id)
 
-        const documentIndexesRaw = await DocumentIndex.query().where('index_id', 'IN', indexes.map(index => index.id))
+        const documentIndexesRaw = await DocumentIndex.query()
+            .where('index_id', 'IN', indexes.map(index => index.id))
 
         var documents: any = Object.fromEntries(documentIndexesRaw.map(i => [i.documentId, {}]))
         for (const index of indexes) {
@@ -102,7 +103,7 @@ export default class DocumentsController {
                     }
                     return [index.indexId, index[directoryIndex.type]]
                 })))
-                return {...d, ...d2}
+                return { ...d, ...d2 }
             }))
         }
 
@@ -118,7 +119,8 @@ export default class DocumentsController {
             lastPage: pagination.length,
             total: documents.length,
             results: pagination[page] ?? [],
-            indexes
+            indexes,
+            directoryId
         }
     }
 
