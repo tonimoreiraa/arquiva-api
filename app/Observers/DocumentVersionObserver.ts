@@ -9,7 +9,6 @@ export default class DocumentVersionObserver implements ObserverContract {
   public async beforeCreate(version: DocumentVersion) {
     // create file hash
     const filePath = await version.getLocalPath()
-    console.log(filePath)
     if (fs.existsSync(filePath)) {
       version.hash = await md5File(filePath)
       version.size = (fs.statSync(filePath)).size
