@@ -14,7 +14,7 @@ export default class DocumentVersionObserver implements ObserverContract {
       version.hash = await md5File(filePath)
       version.size = (fs.statSync(filePath)).size
     } else {
-      throw Error('Arquivo não existe.')
+      throw Error(`Arquivo não existe: ${filePath}`)
     }
 
     // aws sync
