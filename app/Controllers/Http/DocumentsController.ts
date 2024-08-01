@@ -13,14 +13,15 @@ import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 import Storage from 'App/Models/Storage';
+import DocumentDownload from '../../Models/DocumentDownload';
 export default class DocumentsController {
 
     async show({request}) {
         const documentId = request.param('id')
         const document = await Document.query().where('id', documentId)
-        .preload('directory', query => query.preload('indexes'))
-        .preload('editor')
-        .firstOrFail()
+            .preload('directory', query => query.preload('indexes'))
+            .preload('editor')
+            .firstOrFail()
 
         const documentIndexes = await DocumentIndex.query().preload('index').where('documentId', document.id)
         
@@ -256,6 +257,29 @@ export default class DocumentsController {
         response.header('Content-Type', 'application/zip')
 
         return response.stream(Readable.from(zip.toBuffer()))
+    }
+
+    async destroy({ request }: HttpContextContract)
+    {
+        const documentId = request.param('id')
+        const document = await Document.query().where('id', documentId)
+            .firstOrFail()
+
+        await DocumentDownload.query()
+            .delete()
+            .where('document_id', document.id)
+
+        await DocumentVersion.query()
+            .delete()
+            .where('document_id', document.documentId)
+
+        await DocumentIndex.query()
+            .delete()
+            .where('document_id', document.id)
+
+        await document.delete()
+
+        return { message: 'OK' }
     }
 
 }

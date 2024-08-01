@@ -1,7 +1,6 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Document from "App/Models/Document"
-import encrypt from 'node-file-encrypt';
 import DocumentVersion from "App/Models/DocumentVersion"
 import Storage from "App/Models/Storage";
 import fs from 'fs';
