@@ -13,20 +13,23 @@ export default class PlansController {
 
         var usage = 0
         var documents = 0
+        var pages = 0
 
         const directories = await Promise.all(dics.map(async (directory) => {
             const all = await DocumentVersion.query()
                 .count('*', 'documents')
                 .sum('size', 'usage')
+                .sum('pages', 'pageCount')
                 .whereRaw(`document_id IN (SELECT document_id FROM documents WHERE directory_id = ${directory.id})`)
                 .firstOrFail()
             usage += Number(all.$extras.usage)
             documents += Number(all.$extras.documents)
+            pages += Number(all.$extras.pageCount)
 
             return {...directory.serialize(), ...all.$extras }
         }))
 
-        return { plan: { usage, documents }, directories }
+        return { plan: { usage, documents, pages }, directories }
     }
 
 }

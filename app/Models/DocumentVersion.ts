@@ -59,6 +59,9 @@ export default class DocumentVersion extends compose(AppBaseModel, Observable) {
   @column()
   public s3Synced: boolean
 
+  @column()
+  public pages: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

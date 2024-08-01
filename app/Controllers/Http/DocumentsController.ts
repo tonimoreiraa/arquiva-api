@@ -13,7 +13,8 @@ import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 import Storage from 'App/Models/Storage';
-import DocumentDownload from '../../Models/DocumentDownload';
+import DocumentDownload from 'App/Models/DocumentDownload';
+import { countPdfPages } from '../../Lib/CountPdfPages';
 export default class DocumentsController {
 
     async show({request}) {
@@ -186,7 +187,17 @@ export default class DocumentsController {
         fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
         const file = request.file('file')
 
-        fs.copyFileSync(file?.tmpPath as string, `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`, )
+        const pathToDocument = `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`
+        fs.copyFileSync(file?.tmpPath as string, pathToDocument)
+
+        var pages = 1
+        if (file?.subtype == 'pdf') {
+            try {
+                pages = await countPdfPages(pathToDocument)
+            } catch (e) {
+                logger.error('Falha ao contar páginas do documento: ' + pathToDocument)
+            }
+        }
 
         await DocumentVersion.create({
             documentId: data.documentId,
@@ -196,7 +207,8 @@ export default class DocumentsController {
             path: documentPath,
             type: `${file?.type}/${file?.subtype}`,
             extname: file?.extname,
-            size: file?.size
+            size: file?.size,
+            pages,
         })
 
         // create document
