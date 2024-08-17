@@ -75,7 +75,7 @@ export default class DocumentsController {
 
         const userIndexes = request.input('indexes')
         for (const indexId in userIndexes) {
-            var {operator, value} = userIndexes[indexId]
+            let {operator, value} = userIndexes[indexId]
             documents = documents.filter(document => {
                 if (operator == 'interval') {
                     const index = indexes.find(i => i.id == Number(indexId))
@@ -84,6 +84,12 @@ export default class DocumentsController {
                         document[indexId] = new Date(document[indexId]).getTime()
                     }
                     return document[indexId] >= value[0] && document[indexId] <= value[1]
+                }
+
+                if (operator == 'like') {
+                    const [lowerStr1, lowerStr2] = [value.toLowerCase(), document[indexId].toLowerCase()]
+                    return lowerStr1.split(" ").some(word => lowerStr2.includes(word)) || 
+                           lowerStr2.split(" ").some(word => lowerStr1.includes(word))
                 }
 
                 return eval(`(typeof document[indexId] == 'object' ? document[indexId].id : document[indexId]) ${operator} value`)
