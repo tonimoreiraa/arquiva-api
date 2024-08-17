@@ -15,18 +15,6 @@ import DirectoryIndexListValue from "App/Models/DirectoryIndexListValue";
 import Storage from 'App/Models/Storage';
 import DocumentDownload from 'App/Models/DocumentDownload';
 import { countPdfPages } from '../../Lib/CountPdfPages';
-
-function hasCommonSubstring(smallStr: string, largeStr: string) {
-    for (let length = 1; length <= smallStr.length; length++) {
-        for (let i = 0; i <= smallStr.length - length; i++) {
-            const substring = smallStr.substring(i, i + length);
-            if (largeStr.includes(substring)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
 export default class DocumentsController {
 
     async show({request}) {
@@ -100,8 +88,16 @@ export default class DocumentsController {
                 }
 
                 if (operator == 'like') {
-                    const [lowerStr1, lowerStr2] = [value.toLowerCase(), document[indexId].toLowerCase()]
-                    return hasCommonSubstring(lowerStr1, lowerStr2) || hasCommonSubstring(lowerStr2, lowerStr1)
+                    const [lowerStr1, lowerStr2] = [value.toLowerCase().split(' '), document[indexId].toLowerCase().split(' ')]
+                    for (const word of lowerStr1) {
+                        for (const queryWord of lowerStr2) {
+                            if (queryWord.includes(word)) {
+                                return true
+                            }
+                        }
+                    }
+
+                    return false;
                 }
 
                 return eval(`(typeof document[indexId] == 'object' ? document[indexId].id : document[indexId]) ${operator} value`)
