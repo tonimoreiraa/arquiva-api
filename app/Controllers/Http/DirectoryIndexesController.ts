@@ -18,8 +18,13 @@ export default class DirectoryIndexesController {
         return index.serialize()
     }
 
-    async store({request, auth, logger}) {
+    async store({ request, auth, logger }) {
         const data = request.only(['directoryId', 'name', 'type', 'displayAs', 'notNullable', 'min', 'max', 'minLength', 'maxLength', 'regex'])
+
+        if (data.displayAs == 'cpf-cnpj') {
+            data.type = 'string';
+            data.regex = '(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)|(^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$)'
+        }
         
         const index = await DirectoryIndex.create(data)
 
