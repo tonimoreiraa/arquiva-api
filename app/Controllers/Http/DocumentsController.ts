@@ -188,7 +188,6 @@ export default class DocumentsController {
             return ['index-' + index.id, index.notNullable ? schema[schemaType](...args) : schema[schemaType].optional(...args)]
         })))
         const documentIndexesValues = await request.validate({ schema: s })
-        console.log(documentIndexesValues)
 
         // define properties
         const data: any = request.only(['directoryId', 'documentId'])
@@ -200,6 +199,7 @@ export default class DocumentsController {
         const documentPath = `${now.getFullYear()}/${('00' + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (60*60*24*1000))).slice(-3)}/${data.documentId}`
         fs.mkdirSync(`${storage.path}/${documentPath}`, {recursive: true})
         const file = request.file('file')
+        console.log(file)
 
         const pathToDocument = `${storage.path}/${documentPath}/${data.documentId}-v${data.version}.arq`
         fs.copyFileSync(file?.tmpPath as string, pathToDocument)
@@ -213,6 +213,8 @@ export default class DocumentsController {
             }
         }
 
+        const extname = file?.extname ?? file?.clientName.split('.').slice(-1)[0]
+
         await DocumentVersion.create({
             documentId: data.documentId,
             version: data.version,
@@ -220,7 +222,7 @@ export default class DocumentsController {
             storageId: storage.id,
             path: documentPath,
             type: `${file?.type}/${file?.subtype}`,
-            extname: file?.extname,
+            extname,
             size: file?.size,
             pages,
         })
