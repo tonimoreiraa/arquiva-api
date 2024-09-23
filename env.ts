@@ -15,19 +15,19 @@
 import Env from '@ioc:Adonis/Core/Env'
 
 export default Env.rules({
-    HOST: Env.schema.string({ format: 'host' }),
+    HOST: Env.schema.string({}),
     PORT: Env.schema.number(),
     APP_KEY: Env.schema.string(),
     APP_NAME: Env.schema.string(),
     DRIVE_DISK: Env.schema.enum(['local'] as const),
     NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
-    PG_HOST: Env.schema.string({ format: 'host' }),
+    PG_HOST: Env.schema.string({}),
     PG_PORT: Env.schema.number(),
     PG_USER: Env.schema.string(),
     PG_PASSWORD: Env.schema.string.optional(),
     PG_DB_NAME: Env.schema.string(),
     REDIS_CONNECTION: Env.schema.enum(['local'] as const),
-    REDIS_HOST: Env.schema.string({ format: 'host' }),
+    REDIS_HOST: Env.schema.string({}),
     REDIS_PORT: Env.schema.number(),
     REDIS_PASSWORD: Env.schema.string.optional(),
     S3_KEY: Env.schema.string(),
